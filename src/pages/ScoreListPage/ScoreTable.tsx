@@ -1,7 +1,7 @@
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
 import { ChartData } from "@/models/Table";
-import { deserializeData } from "@/modules/ChartDataConverter";
+import { deserializeJsonData } from "@/modules/ChartDataConverter";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
@@ -80,148 +80,145 @@ const CountColumnOpt = {
   enableGlobalFilter: false,
 } as const;
 
-export default function ScoreTable() {
-  const columns = useMemo<MRT_ColumnDef<ChartData>[]>(
-    () => [
-      {
-        header: "ジャケット",
-        accessorKey: "music.musicId",
-        Cell: ({ cell }) => (
-          <img
-            src={`../images/jackets/${cell.getValue<string>()}.jpg`}
-            width="30px"
-          />
-        ),
-        enableGlobalFilter: false,
-        enableSorting: false,
-        size: 30,
-      },
-      {
-        header: "曲名",
-        accessorKey: "music.name",
-        enableHiding: false,
-        size: 200,
-      },
-      {
-        header: "作曲者",
-        accessorKey: "music.composer",
-      },
-      {
-        header: "ライセンス",
-        accessorKey: "music.license",
-      },
-      {
-        header: "ジャンル",
-        id: "music.genre",
-        accessorFn: (row) => getGenreLabels(row.music.genre).join(","),
-        filterVariant: "multi-select",
-        filterSelectOptions: GenreOptions,
-        enableGlobalFilter: false,
-      },
-      {
-        header: "Lv",
-        accessorKey: "level",
-        filterVariant: "multi-select",
-        filterSelectOptions: LevelOptions,
-        filterFn: (row, id, filterValue: number[]) =>
-          filterValue.length === 0 ||
-          filterValue.includes(row.getValue<number>(id)),
-        size: 40,
-        enableGlobalFilter: false,
-      },
-      {
-        header: "難易度",
-        id: "difficultyType",
-        accessorFn: (row) => row.difficultyType,
-        Cell: ({ cell }) => (
-          <DifficultyIcon difficulty={cell.getValue<ChartDifficultyType>()} />
-        ),
-        filterVariant: "multi-select",
-        filterSelectOptions: DifficultyTypeOptions,
-        filterFn: (row, id, filterValue: ChartDifficultyType[]) =>
-          filterValue.length === 0 ||
-          filterValue.includes(row.getValue<ChartDifficultyType>(id)),
-        size: 80,
-        enableGlobalFilter: false,
-      },
-      {
-        header: "AcRate",
-        accessorKey: "achievementRate",
-        ...RateColumnOpt,
-      },
-      {
-        header: "LIKES",
-        accessorKey: "likes",
-        filterVariant: "range",
-        size: 80,
-        enableGlobalFilter: false,
-      },
-      {
-        header: "最大コンボ",
-        accessorKey: "maxCombo",
-        filterVariant: "range",
-        size: 100,
-        enableGlobalFilter: false,
-      },
-      {
-        header: "ランプ",
-        id: "clearStatus",
-        accessorFn: (row) => getClearStatusLabel(row.clearStatus),
-        filterVariant: "multi-select",
-        filterSelectOptions: ClearStatusOptions,
-        size: 140,
-        enableGlobalFilter: false,
-      },
-      {
-        header: "クリア回数",
-        accessorKey: "clearCount",
-        ...CountColumnOpt,
-      },
-      {
-        header: "クリア率",
-        id: "clearRate",
-        accessorFn: (row) => (row.clearCount / row.playCount) * 100,
-        ...RateColumnOpt,
-      },
-      {
-        header: "FC回数",
-        accessorKey: "fcCount",
-        ...CountColumnOpt,
-      },
-      {
-        header: "FC率",
-        id: "fcRate",
-        accessorFn: (row) => (row.fcCount / row.playCount) * 100,
-        ...RateColumnOpt,
-      },
-      {
-        header: "AP回数",
-        accessorKey: "apCount",
-        ...CountColumnOpt,
-      },
-      {
-        header: "AP率",
-        id: "apRate",
-        accessorFn: (row) => (row.apCount / row.playCount) * 100,
-        ...RateColumnOpt,
-      },
-      {
-        header: "プレイ回数",
-        accessorKey: "playCount",
-        ...CountColumnOpt,
-      },
-      {
-        header: "更新日時",
-        accessorKey: "updateAt",
-        Cell: ({ cell }) =>
-          formatDate(cell.getValue<Date>(), "yyyy/MM/dd HH:mm:ss"),
-        filterVariant: "datetime-range",
-        enableGlobalFilter: false,
-      },
-    ],
-    []
-  );
+const Columns: MRT_ColumnDef<ChartData>[] = [
+  {
+    header: "ジャケット",
+    accessorKey: "music.musicId",
+    Cell: ({ cell }) => (
+      <img
+        src={`../images/jackets/${cell.getValue<string>()}.jpg`}
+        width="30px"
+      />
+    ),
+    enableGlobalFilter: false,
+    enableSorting: false,
+    size: 30,
+  },
+  {
+    header: "曲名",
+    accessorKey: "music.name",
+    enableHiding: false,
+    size: 200,
+  },
+  {
+    header: "作曲者",
+    accessorKey: "music.composer",
+  },
+  {
+    header: "ライセンス",
+    accessorKey: "music.license",
+  },
+  {
+    header: "ジャンル",
+    id: "music.genre",
+    accessorFn: (row) => getGenreLabels(row.music.genre).join(","),
+    filterVariant: "multi-select",
+    filterSelectOptions: GenreOptions,
+    enableGlobalFilter: false,
+  },
+  {
+    header: "Lv",
+    accessorKey: "level",
+    filterVariant: "multi-select",
+    filterSelectOptions: LevelOptions,
+    filterFn: (row, id, filterValue: number[]) =>
+      filterValue.length === 0 ||
+      filterValue.includes(row.getValue<number>(id)),
+    size: 40,
+    enableGlobalFilter: false,
+  },
+  {
+    header: "難易度",
+    id: "difficultyType",
+    accessorFn: (row) => row.difficultyType,
+    Cell: ({ cell }) => (
+      <DifficultyIcon difficulty={cell.getValue<ChartDifficultyType>()} />
+    ),
+    filterVariant: "multi-select",
+    filterSelectOptions: DifficultyTypeOptions,
+    filterFn: (row, id, filterValue: ChartDifficultyType[]) =>
+      filterValue.length === 0 ||
+      filterValue.includes(row.getValue<ChartDifficultyType>(id)),
+    size: 80,
+    enableGlobalFilter: false,
+  },
+  {
+    header: "AcRate",
+    accessorKey: "achievementRate",
+    ...RateColumnOpt,
+  },
+  {
+    header: "LIKES",
+    accessorKey: "likes",
+    filterVariant: "range",
+    size: 80,
+    enableGlobalFilter: false,
+  },
+  {
+    header: "最大コンボ",
+    accessorKey: "maxCombo",
+    filterVariant: "range",
+    size: 100,
+    enableGlobalFilter: false,
+  },
+  {
+    header: "ランプ",
+    id: "clearStatus",
+    accessorFn: (row) => getClearStatusLabel(row.clearStatus),
+    filterVariant: "multi-select",
+    filterSelectOptions: ClearStatusOptions,
+    size: 140,
+    enableGlobalFilter: false,
+  },
+  {
+    header: "クリア回数",
+    accessorKey: "clearCount",
+    ...CountColumnOpt,
+  },
+  {
+    header: "クリア率",
+    id: "clearRate",
+    accessorFn: (row) => (row.clearCount / row.playCount) * 100,
+    ...RateColumnOpt,
+  },
+  {
+    header: "FC回数",
+    accessorKey: "fcCount",
+    ...CountColumnOpt,
+  },
+  {
+    header: "FC率",
+    id: "fcRate",
+    accessorFn: (row) => (row.fcCount / row.playCount) * 100,
+    ...RateColumnOpt,
+  },
+  {
+    header: "AP回数",
+    accessorKey: "apCount",
+    ...CountColumnOpt,
+  },
+  {
+    header: "AP率",
+    id: "apRate",
+    accessorFn: (row) => (row.apCount / row.playCount) * 100,
+    ...RateColumnOpt,
+  },
+  {
+    header: "プレイ回数",
+    accessorKey: "playCount",
+    ...CountColumnOpt,
+  },
+  {
+    header: "更新日時",
+    accessorKey: "updateAt",
+    Cell: ({ cell }) =>
+      formatDate(cell.getValue<Date>(), "yyyy/MM/dd HH:mm:ss"),
+    filterVariant: "datetime-range",
+    enableGlobalFilter: false,
+  },
+] as const;
 
+export default function ScoreTable() {
   const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
   const [data, setData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -250,7 +247,7 @@ export default function ScoreTable() {
   };
 
   const table = useMaterialReactTable({
-    columns,
+    columns: Columns,
     data,
     initialState,
     muiPaginationProps: {
@@ -306,7 +303,7 @@ export default function ScoreTable() {
       })
       .then((data) => {
         setData(
-          deserializeData(data).sort((a, b) =>
+          deserializeJsonData(data).sort((a, b) =>
             a.music.name.localeCompare(b.music.name)
           )
         );

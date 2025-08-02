@@ -1,9 +1,61 @@
+import type { ScoreDataRow } from "@/models/db/ScoreDataTable";
 import type { PolarisChordResponse } from "@/models/EamuData";
 import { ChartData, MusicData } from "@/models/Table";
 import { normalizeArray } from "@/utils/ArrayUtil";
 import { parse } from "date-fns";
 
-export function deserializeData(data: PolarisChordResponse): ChartData[] {
+export function serializeRow(data: ChartData): ScoreDataRow {
+  return {
+    musicId: data.music.musicId,
+    name: data.music.name,
+    composer: data.music.composer,
+    license: data.music.license,
+    genre: data.music.genre,
+    level: data.level,
+    difficultyType: data.difficultyType,
+    achievementRate: data.achievementRate,
+    maxCombo: data.maxCombo,
+    comboRank: data.comboRank,
+    likes: data.likes,
+    likesRank: data.likesRank,
+    clearStatus: data.clearStatus,
+    clearCount: data.clearCount,
+    fcCount: data.fcCount,
+    apCount: data.apCount,
+    playCount: data.playCount,
+    updateAt: data.updateAt.toISOString(),
+    nicePlayRank: data.nicePlayRank,
+  };
+}
+
+export function deserializeRow(data: ScoreDataRow): ChartData {
+  const music = new MusicData(
+    data.musicId,
+    data.name,
+    data.composer,
+    data.license,
+    data.genre
+  );
+  return new ChartData(
+    music,
+    data.level,
+    data.difficultyType,
+    data.achievementRate,
+    data.maxCombo,
+    data.comboRank,
+    data.likes,
+    data.likesRank,
+    data.clearStatus,
+    data.clearCount,
+    data.fcCount,
+    data.apCount,
+    data.playCount,
+    new Date(data.updateAt),
+    data.nicePlayRank
+  );
+}
+
+export function deserializeJsonData(data: PolarisChordResponse): ChartData[] {
   const list = data.data.score_data.usr_music_highscore.music;
 
   return list.flatMap((music) => {

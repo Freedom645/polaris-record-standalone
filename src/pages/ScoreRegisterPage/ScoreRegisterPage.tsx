@@ -1,4 +1,9 @@
 import ContainerContent from "@/components/styled/ContainerContent";
+import { indexedDB } from "@/models/db/ScoreDataTable";
+import {
+  deserializeJsonData,
+  serializeRow,
+} from "@/modules/ChartDataConverter";
 import {
   Box,
   Button,
@@ -31,13 +36,22 @@ export default function ScoreRegisterPage() {
     }
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     try {
       setInputError(false);
       const parsed = JSON.parse(jsonText);
-      // ここでindexedDBへの登録処理を呼び出す（仮）
-      console.log("登録データ:", parsed);
-      alert("登録処理を発行しました（ダミー）");
+
+      await indexedDB.scores.clear();
+      await Promise.all(
+        deserializeJsonData(parsed)
+          .map((charData) => serializeRow(charData))
+          .map(async (row) => await indexedDB.scores.add(row))
+      );
+
+      enqueueSnackbar({
+        variant: "success",
+        message: "登録処理が完了しました。",
+      });
     } catch {
       enqueueSnackbar({
         variant: "error",

@@ -1,12 +1,5 @@
 import { ChartDifficultyType, ClearStatus, Genre } from "../consts/Code";
 
-export interface TableRow {
-  name: string;
-  level: number;
-  difficultyType: ChartDifficultyType;
-  achievementRate: number;
-}
-
 export class MusicData {
   public readonly musicId: string;
   public readonly name: string;
