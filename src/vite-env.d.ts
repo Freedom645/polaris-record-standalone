@@ -10,6 +10,7 @@ interface ImportMetaEnv {
   readonly VITE_NAME: string;
   readonly VITE_EAMU_POLARIS_CHORD_MUSIC_DATA_URL: string;
   readonly VITE_EAMU_COURSE_ANNOUNCE_URL: string;
+  readonly VITE_BASE_NAME: string;
 }
 
 interface ImportMeta {

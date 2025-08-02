@@ -16,7 +16,7 @@ createRoot(document.getElementById("root")!).render(
         anchorOrigin={{ horizontal: "center", vertical: "top" }}
         autoHideDuration={3000}
       >
-        <BrowserRouter>
+        <BrowserRouter basename={import.meta.env.BASE_URL}>
           <App />
         </BrowserRouter>
       </SnackbarProvider>

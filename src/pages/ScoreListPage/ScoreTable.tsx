@@ -1,20 +1,19 @@
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import DifficultyIcon from "@/components/parts/DifficultyIcon";
+import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
+import { ChartData } from "@/models/Table";
+import { deserializeData } from "@/modules/ChartDataConverter";
 import {
-  MRT_TableContainer,
-  MRT_BottomToolbar,
-  MRT_GlobalFilterTextField,
-  MRT_ShowHideColumnsMenuItems,
-  MRT_TableHeadCellFilterContainer,
-  useMaterialReactTable,
-  type MRT_Cell,
-  type MRT_SortingState,
-  type MRT_ColumnDef,
-  type DropdownOption,
-  type MRT_RowVirtualizer,
-  type MRT_TableState,
-  type MRT_ColumnFiltersState,
-  type MRT_VisibilityState,
-} from "material-react-table";
+  getClearStatusLabel,
+  getDifficultyLabel,
+  getGenreLabels,
+} from "@/utils/LabelUtil";
+import VisibilityOff from "@mui/icons-material/Deselect";
+import FilterAlt from "@mui/icons-material/FilterAlt";
+import FilterAltOutlined from "@mui/icons-material/FilterAltOutlined";
+import RotateLeft from "@mui/icons-material/RotateLeft";
+import SelectAll from "@mui/icons-material/SelectAll";
+import ViewColumn from "@mui/icons-material/ViewColumn";
+import ViewColumnOutlined from "@mui/icons-material/ViewColumnOutlined";
 import {
   Button,
   Collapse,
@@ -25,24 +24,25 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
-import FilterAlt from "@mui/icons-material/FilterAlt";
-import FilterAltOutlined from "@mui/icons-material/FilterAltOutlined";
-import ViewColumn from "@mui/icons-material/ViewColumn";
-import ViewColumnOutlined from "@mui/icons-material/ViewColumnOutlined";
-import RotateLeft from "@mui/icons-material/RotateLeft";
-import SelectAll from "@mui/icons-material/SelectAll";
-import VisibilityOff from "@mui/icons-material/Deselect";
-import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { formatDate } from "date-fns";
-import { MRT_Localization_JA } from "material-react-table/locales/ja";
-import { ChartData } from "@/models/Table";
-import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
 import {
-  getClearStatusLabel,
-  getDifficultyLabel,
-  getGenreLabels,
-} from "@/utils/LabelUtil";
-import { deserializeData } from "@/modules/ChartDataConverter";
+  MRT_BottomToolbar,
+  MRT_GlobalFilterTextField,
+  MRT_ShowHideColumnsMenuItems,
+  MRT_TableContainer,
+  MRT_TableHeadCellFilterContainer,
+  useMaterialReactTable,
+  type DropdownOption,
+  type MRT_Cell,
+  type MRT_ColumnDef,
+  type MRT_ColumnFiltersState,
+  type MRT_RowVirtualizer,
+  type MRT_SortingState,
+  type MRT_TableState,
+  type MRT_VisibilityState,
+} from "material-react-table";
+import { MRT_Localization_JA } from "material-react-table/locales/ja";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 const GenreOptions: DropdownOption[] = Object.values(Genre).map((e) => ({
   value: getGenreLabels(e),
@@ -299,7 +299,7 @@ export default function ScoreTable() {
   };
 
   useEffect(() => {
-    fetch("/data.json")
+    fetch(import.meta.env.BASE_URL + "/data.json")
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch JSON");
         return res.json();
