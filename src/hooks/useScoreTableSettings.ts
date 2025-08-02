@@ -60,9 +60,11 @@ export function useScoreTableSettings() {
 
     load();
     window.addEventListener("beforeunload", unload);
+    window.addEventListener("pagehide", unload);
     return () => {
       unload();
       window.removeEventListener("beforeunload", unload);
+      window.removeEventListener("pagehide", unload);
     };
   }, []);
 
