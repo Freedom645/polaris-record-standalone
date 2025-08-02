@@ -82,11 +82,7 @@ export default function GuidePage() {
                   fontFamily: "monospace",
                   width: "100%",
                 }}
-                slotProps={{
-                  input: {
-                    readOnly: true,
-                  },
-                }}
+                inputProps={{ readOnly: true }}
                 endAdornment={
                   <InputAdornment position="end">
                     <Button

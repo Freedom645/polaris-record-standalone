@@ -18,8 +18,8 @@ export default function TopPage() {
         Polaris Record <small>{import.meta.env.VITE_VERSION}</small>
       </Typography>
       <Stack spacing={3} mt={6}>
-        {MenuItems.map((item) => (
-          <GradientButton onClick={() => navigate(item.path)}>
+        {MenuItems.map((item, i) => (
+          <GradientButton key={i} onClick={() => navigate(item.path)}>
             {item.name}
           </GradientButton>
         ))}

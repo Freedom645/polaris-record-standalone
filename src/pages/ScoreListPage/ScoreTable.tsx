@@ -1,7 +1,9 @@
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
+import { RouteDefine } from "@/consts/Route";
+import { indexedDB } from "@/models/db/ScoreDataTable";
 import { ChartData } from "@/models/Table";
-import { deserializeJsonData } from "@/modules/ChartDataConverter";
+import { deserializeRow } from "@/modules/ChartDataConverter";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
@@ -15,6 +17,7 @@ import SelectAll from "@mui/icons-material/SelectAll";
 import ViewColumn from "@mui/icons-material/ViewColumn";
 import ViewColumnOutlined from "@mui/icons-material/ViewColumnOutlined";
 import {
+  Alert,
   Button,
   Collapse,
   Grid,
@@ -42,7 +45,9 @@ import {
   type MRT_VisibilityState,
 } from "material-react-table";
 import { MRT_Localization_JA } from "material-react-table/locales/ja";
+import { enqueueSnackbar } from "notistack";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Link } from "react-router-dom";
 
 const GenreOptions: DropdownOption[] = Object.values(Genre).map((e) => ({
   value: getGenreLabels(e),
@@ -229,7 +234,7 @@ export default function ScoreTable() {
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {}
   );
-  const [menu, setMenu] = useState<"hide" | "filter">();
+  const [menu, setMenu] = useState<"hide" | "filter" | "none">("none");
 
   useEffect(() => {
     try {
@@ -296,26 +301,40 @@ export default function ScoreTable() {
   };
 
   useEffect(() => {
-    fetch(import.meta.env.BASE_URL + "/data.json")
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch JSON");
-        return res.json();
+    indexedDB.scoreData
+      .toArray()
+      .then((records) => {
+        try {
+          const data = records.map((row) => deserializeRow(row));
+          setData(data);
+        } catch {
+          enqueueSnackbar({
+            variant: "error",
+            message: "スコアデータの変換中にエラーが発生しました。",
+          });
+        }
       })
-      .then((data) => {
-        setData(
-          deserializeJsonData(data).sort((a, b) =>
-            a.music.name.localeCompare(b.music.name)
-          )
-        );
-        setIsLoading(false);
+      .catch(() => {
+        enqueueSnackbar({
+          variant: "error",
+          message: "スコアデータの読み込みに失敗しました。",
+        });
       })
-      .catch((err) => {
-        console.error(err);
-      });
+      .finally(() => setIsLoading(false));
   }, []);
 
   return (
     <Stack>
+      {!isLoading && data.length === 0 ? (
+        <Alert color="warning" sx={{ marginBottom: 1 }}>
+          利用するには
+          <Link to={RouteDefine.ScoreRegisterPage.path}>
+            {RouteDefine.ScoreRegisterPage.name}
+          </Link>
+          より登録をしてください。使い方は
+          <Link to={RouteDefine.GuidePage.path}>コチラ</Link>。
+        </Alert>
+      ) : undefined}
       <Grid
         container
         justifyContent="space-between"
@@ -331,7 +350,7 @@ export default function ScoreTable() {
             color="primary"
             value={menu}
             exclusive
-            onChange={(_, v) => setMenu(v)}
+            onChange={(_, v) => setMenu(v ?? "none")}
           >
             <ToggleButton value="hide">
               {menu === "hide" ? <ViewColumn /> : <ViewColumnOutlined />}
@@ -359,7 +378,7 @@ export default function ScoreTable() {
               .getLeafHeaders()
               .filter((h) => h.id !== "music.musicId")
               .map((header) => (
-                <Fragment>
+                <Fragment key={header.id}>
                   <Grid size={{ lg: 1, md: 1.5, sm: 2, xs: 12 }}>
                     <Typography
                       paddingLeft="1rem"
@@ -412,7 +431,7 @@ export default function ScoreTable() {
           </Stack>
           <Grid container>
             {table.getAllColumns().map((column) => (
-              <Grid size={{ lg: 1.5, md: 2, sm: 3, xs: 6 }}>
+              <Grid key={column.id} size={{ lg: 1.5, md: 2, sm: 3, xs: 6 }}>
                 <MRT_ShowHideColumnsMenuItems
                   table={table}
                   allColumns={table.getAllColumns()}
@@ -426,13 +445,16 @@ export default function ScoreTable() {
           </Grid>
         </Paper>
       </Collapse>
-      <MRT_TableContainer
-        table={table}
-        sx={{
-          maxHeight: "calc(100dvh - 210px)",
-        }}
-      />
-      <MRT_BottomToolbar table={table} />
+      <Paper>
+        <MRT_TableContainer
+          table={table}
+          sx={{
+            height: "calc(100dvh - 210px)",
+            maxHeight: "calc(100dvh - 210px)",
+          }}
+        />
+        <MRT_BottomToolbar table={table} />
+      </Paper>
     </Stack>
   );
 }

@@ -37,13 +37,13 @@ export interface UserSettingScoreTableVisibility {
 }
 
 class AppDatabase extends Dexie {
-  scores!: Table<ScoreDataRow, [string, string]>;
+  scoreData!: Table<ScoreDataRow, [string, string]>;
   userSetting!: Table<UserSettingRow, string>;
 
   constructor() {
     super("AppDatabase");
     this.version(1).stores({
-      scores: "[musicId+difficultyType]",
+      scoreData: "[musicId+difficultyType]",
       userSetting: "key",
     });
   }

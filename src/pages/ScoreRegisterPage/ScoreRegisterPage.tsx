@@ -41,11 +41,11 @@ export default function ScoreRegisterPage() {
       setInputError(false);
       const parsed = JSON.parse(jsonText);
 
-      await indexedDB.scores.clear();
+      await indexedDB.scoreData.clear();
       await Promise.all(
         deserializeJsonData(parsed)
           .map((charData) => serializeRow(charData))
-          .map(async (row) => await indexedDB.scores.add(row))
+          .map(async (row) => await indexedDB.scoreData.add(row))
       );
 
       enqueueSnackbar({

@@ -108,8 +108,9 @@ function App() {
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText
                   primary={item.name}
-                  slotProps={{
-                    primary: { fontWeight: "bold", color: "#ff4ca3" },
+                  primaryTypographyProps={{
+                    fontWeight: "bold",
+                    color: "#ff4ca3",
                   }}
                 />
               </ListItemButton>
