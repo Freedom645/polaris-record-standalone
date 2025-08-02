@@ -15,7 +15,9 @@ import ViewColumn from "@mui/icons-material/ViewColumn";
 import ViewColumnOutlined from "@mui/icons-material/ViewColumnOutlined";
 import {
   Button,
+  Checkbox,
   Collapse,
+  FormControlLabel,
   Grid,
   Paper,
   Stack,
@@ -227,16 +229,20 @@ const initialDefaultState: Partial<MRT_TableState<ChartData>> = {
 
 type ScoreTableProps = {
   data: ChartData[];
+  isSaveFilter: boolean;
   columnFilters: MRT_ColumnFiltersState;
   columnVisibility: MRT_VisibilityState;
+  setIsSaveFilter: OnChangeFn<boolean>;
   onColumnFiltersChange: OnChangeFn<MRT_ColumnFiltersState>;
   onColumnVisibilityChange: OnChangeFn<MRT_VisibilityState>;
 };
 
 export default function ScoreTable({
   data,
+  isSaveFilter,
   columnFilters,
   columnVisibility,
+  setIsSaveFilter,
   onColumnFiltersChange,
   onColumnVisibilityChange,
 }: ScoreTableProps) {
@@ -335,7 +341,12 @@ export default function ScoreTable({
       </Grid>
       <Collapse in={menu === "filter"}>
         <Paper style={{ marginBottom: "0.5rem", padding: 10 }}>
-          <Stack direction="row" justifyContent="start" paddingBottom="10px">
+          <Stack
+            direction="row"
+            justifyContent="start"
+            paddingBottom="10px"
+            gap={5}
+          >
             <Button
               variant="outlined"
               color="warning"
@@ -344,6 +355,15 @@ export default function ScoreTable({
             >
               リセット
             </Button>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  defaultChecked={isSaveFilter}
+                  onChange={(_, checked) => setIsSaveFilter(checked)}
+                />
+              }
+              label={<Typography>条件を記憶する</Typography>}
+            />
           </Stack>
           <Grid container>
             {table

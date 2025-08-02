@@ -24,9 +24,14 @@ export interface ScoreDataRow {
 }
 
 export type UserSettingRow =
+  | UserSettingScoreTableFilterIsSave
   | UserSettingScoreTableFilter
   | UserSettingScoreTableVisibility;
 
+export interface UserSettingScoreTableFilterIsSave {
+  key: "score-table-filter-is-save";
+  value: boolean;
+}
 export interface UserSettingScoreTableFilter {
   key: "score-table-filter";
   value: Array<{ id: string; value: unknown }>;

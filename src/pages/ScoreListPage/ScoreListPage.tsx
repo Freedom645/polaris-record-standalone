@@ -1,7 +1,7 @@
 import ContainerContent from "@/components/styled/ContainerContent";
 import { RouteDefine } from "@/consts/Route";
+import { indexedDB } from "@/db/AppDatabase";
 import { useScoreTableSettings } from "@/hooks/useScoreTableSettings";
-import { indexedDB } from "@/models/db/ScoreDataTable";
 import type { ChartData } from "@/models/Table";
 import { deserializeRow } from "@/modules/ChartDataConverter";
 import { Alert, CircularProgress } from "@mui/material";
@@ -15,8 +15,10 @@ export default function ScoreListPage() {
 
   const {
     isSettingLoaded,
+    isSaveFilter,
     columnFilters,
     columnVisibility,
+    setIsSaveFilter,
     setColumnFilters,
     setColumnVisibility,
   } = useScoreTableSettings();
@@ -52,8 +54,10 @@ export default function ScoreListPage() {
           )}
           <ScoreTable
             data={data}
+            isSaveFilter={isSaveFilter}
             columnFilters={columnFilters}
             columnVisibility={columnVisibility}
+            setIsSaveFilter={setIsSaveFilter}
             onColumnFiltersChange={setColumnFilters}
             onColumnVisibilityChange={setColumnVisibility}
           />

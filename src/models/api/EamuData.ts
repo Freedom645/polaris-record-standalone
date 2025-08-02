@@ -1,4 +1,4 @@
-import { ChartDifficultyType, ClearStatus } from "../consts/Code";
+import { ChartDifficultyType, ClearStatus } from "../../consts/Code";
 
 export interface PolarisChordResponse {
   status: number;

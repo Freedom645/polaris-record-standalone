@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { indexedDB } from "@/models/db/ScoreDataTable";
+import { indexedDB } from "@/db/AppDatabase";
 import type {
   MRT_ColumnFiltersState,
   MRT_VisibilityState,
@@ -9,18 +9,22 @@ export function useScoreTableSettings() {
   const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
     []
   );
+  const [isSaveFilter, setIsSaveFilter] = useState(false);
   const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
     {}
   );
   const [isSettingLoaded, setIsSettingLoaded] = useState(false);
 
+  const isSaveFilterRef = useRef(isSaveFilter);
   const filtersRef = useRef(columnFilters);
   const visibilityRef = useRef(columnVisibility);
 
   useEffect(() => {
+    isSaveFilterRef.current = isSaveFilter;
+  }, [isSaveFilter]);
+  useEffect(() => {
     filtersRef.current = columnFilters;
   }, [columnFilters]);
-
   useEffect(() => {
     visibilityRef.current = columnVisibility;
   }, [columnVisibility]);
@@ -31,6 +35,10 @@ export function useScoreTableSettings() {
     const load = async () => {
       const settings = await indexedDB.userSetting.toArray();
       for (const s of settings) {
+        if (s.key === "score-table-filter-is-save") {
+          setIsSaveFilter(s.value);
+          isSaveFilterRef.current = s.value;
+        }
         if (s.key === "score-table-filter") {
           setColumnFilters(s.value);
           filtersRef.current = s.value;
@@ -49,8 +57,12 @@ export function useScoreTableSettings() {
         return;
       }
       indexedDB.userSetting.put({
+        key: "score-table-filter-is-save",
+        value: isSaveFilterRef.current,
+      });
+      indexedDB.userSetting.put({
         key: "score-table-filter",
-        value: filtersRef.current,
+        value: isSaveFilterRef.current ? filtersRef.current : [],
       });
       indexedDB.userSetting.put({
         key: "score-table-visibility",
@@ -70,8 +82,10 @@ export function useScoreTableSettings() {
 
   return {
     isSettingLoaded,
+    isSaveFilter,
     columnFilters,
     columnVisibility,
+    setIsSaveFilter,
     setColumnFilters,
     setColumnVisibility,
   };

@@ -1,6 +1,6 @@
 import ContainerContent from "@/components/styled/ContainerContent";
 import { RouteDefine } from "@/consts/Route";
-import { indexedDB } from "@/models/db/ScoreDataTable";
+import { indexedDB } from "@/db/AppDatabase";
 import {
   deserializeJsonData,
   serializeRow,
