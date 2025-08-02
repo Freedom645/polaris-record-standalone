@@ -1,4 +1,5 @@
 import ContainerContent from "@/components/styled/ContainerContent";
+import { RouteDefine } from "@/consts/Route";
 import { indexedDB } from "@/models/db/ScoreDataTable";
 import {
   deserializeJsonData,
@@ -14,12 +15,14 @@ import {
 } from "@mui/material";
 import { useSnackbar } from "notistack";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ScoreRegisterPage() {
   const [jsonText, setJsonText] = useState("");
   const [inputError, setInputError] = useState(false);
   const [pasteError, setPasteError] = useState(false);
 
+  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const handlePaste = async () => {
@@ -41,17 +44,17 @@ export default function ScoreRegisterPage() {
       setInputError(false);
       const parsed = JSON.parse(jsonText);
 
-      await indexedDB.scoreData.clear();
       await Promise.all(
         deserializeJsonData(parsed)
           .map((charData) => serializeRow(charData))
-          .map(async (row) => await indexedDB.scoreData.add(row))
+          .map(async (row) => await indexedDB.scoreData.put(row))
       );
 
       enqueueSnackbar({
         variant: "success",
         message: "登録処理が完了しました。",
       });
+      navigate(RouteDefine.ScoreListPage.path);
     } catch {
       enqueueSnackbar({
         variant: "error",
