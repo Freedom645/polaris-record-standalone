@@ -1,9 +1,6 @@
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
-import { RouteDefine } from "@/consts/Route";
-import { indexedDB } from "@/models/db/ScoreDataTable";
 import { ChartData } from "@/models/Table";
-import { deserializeRow } from "@/modules/ChartDataConverter";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
@@ -17,7 +14,6 @@ import SelectAll from "@mui/icons-material/SelectAll";
 import ViewColumn from "@mui/icons-material/ViewColumn";
 import ViewColumnOutlined from "@mui/icons-material/ViewColumnOutlined";
 import {
-  Alert,
   Button,
   Collapse,
   Grid,
@@ -27,6 +23,7 @@ import {
   ToggleButtonGroup,
   Typography,
 } from "@mui/material";
+import type { OnChangeFn } from "@tanstack/react-table";
 import { formatDate } from "date-fns";
 import {
   MRT_BottomToolbar,
@@ -45,9 +42,7 @@ import {
   type MRT_VisibilityState,
 } from "material-react-table";
 import { MRT_Localization_JA } from "material-react-table/locales/ja";
-import { enqueueSnackbar } from "notistack";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "react-router-dom";
 
 const GenreOptions: DropdownOption[] = Object.values(Genre).map((e) => ({
   value: getGenreLabels(e),
@@ -223,17 +218,30 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   },
 ] as const;
 
-export default function ScoreTable() {
+const initialDefaultState: Partial<MRT_TableState<ChartData>> = {
+  pagination: { pageIndex: 0, pageSize: 100 },
+  density: "compact",
+  showColumnFilters: false,
+  showGlobalFilter: true,
+} as const;
+
+type ScoreTableProps = {
+  data: ChartData[];
+  columnFilters: MRT_ColumnFiltersState;
+  columnVisibility: MRT_VisibilityState;
+  onColumnFiltersChange: OnChangeFn<MRT_ColumnFiltersState>;
+  onColumnVisibilityChange: OnChangeFn<MRT_VisibilityState>;
+};
+
+export default function ScoreTable({
+  data,
+  columnFilters,
+  columnVisibility,
+  onColumnFiltersChange,
+  onColumnVisibilityChange,
+}: ScoreTableProps) {
   const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
-  const [data, setData] = useState<ChartData[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
-    {}
-  );
   const [menu, setMenu] = useState<"hide" | "filter" | "none">("none");
 
   useEffect(() => {
@@ -244,34 +252,31 @@ export default function ScoreTable() {
     }
   }, [sorting]);
 
-  const initialState: Partial<MRT_TableState<ChartData>> = {
-    pagination: { pageIndex: 0, pageSize: 100 },
-    density: "compact",
-    showColumnFilters: false,
-    showGlobalFilter: true,
-  };
-
   const table = useMaterialReactTable({
     columns: Columns,
     data,
-    initialState,
+    initialState: { ...initialDefaultState, columnFilters, columnVisibility },
     muiPaginationProps: {
       rowsPerPageOptions: [10, 30, 50, 100, 300, 1000],
       variant: "text",
     },
-    enableStickyHeader: true,
+    enableStickyHeader: false,
     enableFilters: true,
     enableGlobalFilter: true,
-    enableColumnFilters: false,
+    enableColumnFilters: true,
     enableColumnActions: false,
     enablePagination: true,
     enableRowVirtualization: true,
     enableDensityToggle: false,
     paginationDisplayMode: "pages",
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    onColumnVisibilityChange: setColumnVisibility,
-    state: { isLoading, sorting, columnFilters, columnVisibility },
+    onColumnFiltersChange,
+    onColumnVisibilityChange,
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+    },
     localization: MRT_Localization_JA,
     rowVirtualizerInstanceRef,
     rowVirtualizerOptions: { overscan: 10 },
@@ -297,44 +302,11 @@ export default function ScoreTable() {
         (obj, c) => Object.assign(obj, { [c.id]: type === "display" }),
         {} as MRT_VisibilityState
       );
-    setColumnVisibility(visibility);
+    onColumnVisibilityChange(visibility);
   };
-
-  useEffect(() => {
-    indexedDB.scoreData
-      .toArray()
-      .then((records) => {
-        try {
-          const data = records.map((row) => deserializeRow(row));
-          setData(data);
-        } catch {
-          enqueueSnackbar({
-            variant: "error",
-            message: "スコアデータの変換中にエラーが発生しました。",
-          });
-        }
-      })
-      .catch(() => {
-        enqueueSnackbar({
-          variant: "error",
-          message: "スコアデータの読み込みに失敗しました。",
-        });
-      })
-      .finally(() => setIsLoading(false));
-  }, []);
 
   return (
     <Stack>
-      {!isLoading && data.length === 0 ? (
-        <Alert color="warning" sx={{ marginBottom: 1 }}>
-          利用するには
-          <Link to={RouteDefine.ScoreRegisterPage.path}>
-            {RouteDefine.ScoreRegisterPage.name}
-          </Link>
-          より登録をしてください。使い方は
-          <Link to={RouteDefine.GuidePage.path}>コチラ</Link>。
-        </Alert>
-      ) : undefined}
       <Grid
         container
         justifyContent="space-between"
@@ -368,7 +340,7 @@ export default function ScoreTable() {
               variant="outlined"
               color="warning"
               startIcon={<RotateLeft />}
-              onClick={() => setColumnFilters([])}
+              onClick={() => onColumnFiltersChange([])}
             >
               リセット
             </Button>
