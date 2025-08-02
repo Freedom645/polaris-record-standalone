@@ -1,0 +1,47 @@
+.badge {
+  width: 60px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  position: relative;
+  border: 3px solid;
+  background: radial-gradient(circle, #fff 30%, var(--bg-color) 100%);
+  border-color: var(--border-color);
+}
+
+.text {
+  font-family: "Arial Black", sans-serif;
+  font-size: 0.7rem;
+  color: var(--text-color);
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
+    1px 1px 0 #fff;
+  letter-spacing: 1px;
+}
+
+/* 難易度別スタイル */
+.badge.easy {
+  --bg-color: #9be9ff;
+  --border-color: #4ca3ff;
+  --text-color: #4ca3ff;
+}
+
+.badge.normal {
+  --bg-color: #b3f5c0;
+  --border-color: #4ce68b;
+  --text-color: #4ce68b;
+}
+
+.badge.hard {
+  --bg-color: #ffe19b;
+  --border-color: #ffb84c;
+  --text-color: #ffb84c;
+}
+
+.badge.influence {
+  --bg-color: #ffc3dc;
+  --border-color: #ff4ca3;
+  --text-color: #ff4ca3;
+}

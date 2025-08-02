@@ -1,0 +1,124 @@
+import "@/App.css";
+import GuidePage from "@/pages/GuidePage/GuidePage";
+import ScoreListPage from "@/pages/ScoreListPage/ScoreListPage";
+import ScoreRegisterPage from "@/pages/ScoreRegisterPage/ScoreRegisterPage";
+import TopPage from "@/pages/TopPage/TopPage";
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
+import HomeIcon from "@mui/icons-material/Home";
+import ListAltIcon from "@mui/icons-material/ListAlt";
+import MenuIcon from "@mui/icons-material/Menu";
+import {
+  AppBar,
+  Box,
+  Container,
+  Drawer,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Toolbar,
+  Typography,
+} from "@mui/material";
+import { useState } from "react";
+import { Route, Routes, useNavigate } from "react-router-dom";
+import { RouteDefine } from "./consts/Route";
+
+function App() {
+  const navigate = useNavigate();
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerWidth = 240;
+
+  const MenuItems = [
+    {
+      ...RouteDefine.TopPage,
+      element: <TopPage />,
+      icon: <HomeIcon sx={{ color: "#ff4ca3" }} />,
+    },
+    {
+      ...RouteDefine.ScoreRegisterPage,
+      element: <ScoreRegisterPage />,
+      icon: <AddCircleIcon sx={{ color: "#ff4ca3" }} />,
+    },
+    {
+      ...RouteDefine.ScoreListPage,
+      element: <ScoreListPage />,
+      icon: <ListAltIcon sx={{ color: "#ff4ca3" }} />,
+    },
+    {
+      ...RouteDefine.GuidePage,
+      element: <GuidePage />,
+      icon: <HelpOutlineIcon sx={{ color: "#ff4ca3" }} />,
+    },
+  ] as const;
+
+  return (
+    <>
+      <AppBar position="fixed">
+        <Toolbar>
+          <IconButton onClick={() => setDrawerOpen(true)}>
+            <MenuIcon fontSize="large" />
+          </IconButton>
+          <Typography
+            variant="h5"
+            noWrap
+            onClick={() => navigate(RouteDefine.TopPage.path)}
+            sx={{ cursor: "pointer" }}
+          >
+            Polaris Record <small>{import.meta.env.VITE_VERSION}</small>
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      <nav>
+        <Container
+          maxWidth={false}
+          sx={{
+            width: "100dvw",
+            padding: { xs: 0 },
+          }}
+        >
+          <Toolbar id="back-to-top-anchor" />
+          <Routes>
+            {MenuItems.map((item) => (
+              <Route path={item.path} element={item.element} />
+            ))}
+          </Routes>
+        </Container>
+      </nav>
+
+      <Drawer
+        anchor="left"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{ width: drawerWidth }}
+      >
+        <Box
+          sx={{ width: 250, p: 2 }}
+          role="presentation"
+          onClick={() => setDrawerOpen(false)}
+        >
+          <List>
+            {MenuItems.map((item) => (
+              <ListItemButton
+                key={item.path}
+                onClick={() => navigate(item.path)}
+              >
+                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemText
+                  primary={item.name}
+                  slotProps={{
+                    primary: { fontWeight: "bold", color: "#ff4ca3" },
+                  }}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+      </Drawer>
+    </>
+  );
+}
+
+export default App;
