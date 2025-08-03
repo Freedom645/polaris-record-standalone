@@ -1,5 +1,5 @@
-import type { ScoreDataRow } from "@/db/AppDatabase";
 import type { PolarisChordResponse } from "@/models/api/EamuData";
+import type { ScoreDataRow } from "@/models/db/ScoreData";
 import { ChartData, MusicData } from "@/models/Music";
 import { normalizeArray } from "@/utils/ArrayUtil";
 import { parse } from "date-fns";
