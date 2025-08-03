@@ -1,84 +1,50 @@
-import { useEffect, useRef, useState } from "react";
-import { indexedDB } from "@/db/AppDatabase";
-import type {
-  MRT_ColumnFiltersState,
-  MRT_VisibilityState,
-} from "material-react-table";
+import { useEffect, useState } from "react";
+import { useUserSettingState } from "./useUserSettingState";
 
 export function useScoreTableSettings() {
-  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
-    []
-  );
-  const [isSaveFilter, setIsSaveFilter] = useState(false);
-  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
-    {}
-  );
+  const [
+    isLoadedColumnFilters,
+    columnFilters,
+    setColumnFilters,
+    setIsSyncFilters,
+    setColumnFiltersToDb,
+  ] = useUserSettingState("score-table-filter", []);
+  const [isLoadedSaveFilter, isSaveFilter, setIsSaveFilter] =
+    useUserSettingState("score-table-filter-is-save", false);
+  const [isLoadedColumnVisibility, columnVisibility, setColumnVisibility] =
+    useUserSettingState("score-table-visibility", {});
+
   const [isSettingLoaded, setIsSettingLoaded] = useState(false);
 
-  const isSaveFilterRef = useRef(isSaveFilter);
-  const filtersRef = useRef(columnFilters);
-  const visibilityRef = useRef(columnVisibility);
-
   useEffect(() => {
-    isSaveFilterRef.current = isSaveFilter;
-  }, [isSaveFilter]);
-  useEffect(() => {
-    filtersRef.current = columnFilters;
-  }, [columnFilters]);
-  useEffect(() => {
-    visibilityRef.current = columnVisibility;
-  }, [columnVisibility]);
-
-  useEffect(() => {
-    let isLoaded = false;
-
-    const load = async () => {
-      const settings = await indexedDB.userSetting.toArray();
-      for (const s of settings) {
-        if (s.key === "score-table-filter-is-save") {
-          setIsSaveFilter(s.value);
-          isSaveFilterRef.current = s.value;
-        }
-        if (s.key === "score-table-filter") {
-          setColumnFilters(s.value);
-          filtersRef.current = s.value;
-        }
-        if (s.key === "score-table-visibility") {
-          setColumnVisibility(s.value);
-          visibilityRef.current = s.value;
-        }
-      }
-      isLoaded = true;
+    const targets = [
+      isLoadedColumnFilters,
+      isLoadedSaveFilter,
+      isLoadedColumnVisibility,
+    ] as const;
+    if (targets.every((e) => e)) {
       setIsSettingLoaded(true);
-    };
+    }
+  }, [isLoadedColumnFilters, isLoadedSaveFilter, isLoadedColumnVisibility]);
 
-    const unload = () => {
-      if (!isLoaded) {
-        return;
-      }
-      indexedDB.userSetting.put({
-        key: "score-table-filter-is-save",
-        value: isSaveFilterRef.current,
-      });
-      indexedDB.userSetting.put({
-        key: "score-table-filter",
-        value: isSaveFilterRef.current ? filtersRef.current : [],
-      });
-      indexedDB.userSetting.put({
-        key: "score-table-visibility",
-        value: visibilityRef.current,
-      });
-    };
+  useEffect(() => {
+    if (!isSettingLoaded) {
+      return;
+    }
+    setIsSyncFilters(isSaveFilter);
 
-    load();
-    window.addEventListener("beforeunload", unload);
-    window.addEventListener("pagehide", unload);
-    return () => {
-      unload();
-      window.removeEventListener("beforeunload", unload);
-      window.removeEventListener("pagehide", unload);
-    };
-  }, []);
+    if (isSaveFilter) {
+      setColumnFiltersToDb(columnFilters);
+    } else {
+      setColumnFiltersToDb([]);
+    }
+  }, [
+    columnFilters,
+    isSaveFilter,
+    isSettingLoaded,
+    setColumnFiltersToDb,
+    setIsSyncFilters,
+  ]);
 
   return {
     isSettingLoaded,

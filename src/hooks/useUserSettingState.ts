@@ -1,4 +1,4 @@
-import { useState, useEffect, type Dispatch, type SetStateAction } from "react";
+import { useState, useEffect, type SetStateAction } from "react";
 import { indexedDB } from "@/db/AppDatabase";
 import type {
   UserSettingMap,
@@ -12,6 +12,7 @@ export function useUserSettingState<K extends keyof UserSettingMap>(
 ) {
   const [isLoaded, setLoaded] = useState(false);
   const [state, setState] = useState<UserSettingValue<K>>(defaultValue);
+  const [isSynchronizeDb, setIsSynchronizeDb] = useState(true);
 
   useEffect(() => {
     const load = async () => {
@@ -24,14 +25,17 @@ export function useUserSettingState<K extends keyof UserSettingMap>(
     load();
   }, [key]);
 
-  const setter: Dispatch<SetStateAction<UserSettingValue<K>>> = (value) => {
-    const newValue = typeof value === "function" ? value(state) : value;
-
-    const row = { key, value: newValue } as UserSettingRow;
-    indexedDB.userSetting.put(row);
-
-    setState(newValue);
+  const setValue = (value: SetStateAction<UserSettingValue<K>>) => {
+    if (isSynchronizeDb) {
+      setIndexedDB(value);
+    }
+    setState(value);
   };
 
-  return [isLoaded, state, setter] as const;
+  const setIndexedDB = (value: SetStateAction<UserSettingValue<K>>) => {
+    const newValue = typeof value === "function" ? value(state) : value;
+    indexedDB.userSetting.put({ key, value: newValue } as UserSettingRow);
+  };
+
+  return [isLoaded, state, setValue, setIsSynchronizeDb, setIndexedDB] as const;
 }

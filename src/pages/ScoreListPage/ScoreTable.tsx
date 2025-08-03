@@ -358,7 +358,7 @@ export default function ScoreTable({
             <FormControlLabel
               control={
                 <Checkbox
-                  defaultChecked={isSaveFilter}
+                  checked={isSaveFilter}
                   onChange={(_, checked) => setIsSaveFilter(checked)}
                 />
               }
