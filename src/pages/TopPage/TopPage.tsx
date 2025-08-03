@@ -14,9 +14,7 @@ export default function TopPage() {
 
   return (
     <Container maxWidth="sm" sx={{ textAlign: "center", mt: 8 }}>
-      <Typography variant="h2">
-        Polaris Record <small>{import.meta.env.VITE_VERSION}</small>
-      </Typography>
+      <Typography variant="h2">Polaris Record</Typography>
       <Stack spacing={3} mt={6}>
         {MenuItems.map((item, i) => (
           <GradientButton key={i} onClick={() => navigate(item.path)}>

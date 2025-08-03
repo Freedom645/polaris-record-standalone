@@ -1,6 +1,6 @@
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
-import { ChartData } from "@/models/Table";
+import { ChartData } from "@/models/Music";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
@@ -180,7 +180,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "クリア率",
     id: "clearRate",
-    accessorFn: (row) => (row.clearCount / row.playCount) * 100,
+    accessorFn: (row) => row.clearRate * 100,
     ...RateColumnOpt,
   },
   {
@@ -191,7 +191,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "FC率",
     id: "fcRate",
-    accessorFn: (row) => (row.fcCount / row.playCount) * 100,
+    accessorFn: (row) => row.fcRate * 100,
     ...RateColumnOpt,
   },
   {
@@ -202,7 +202,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "AP率",
     id: "apRate",
-    accessorFn: (row) => (row.apCount / row.playCount) * 100,
+    accessorFn: (row) => row.apRate * 100,
     ...RateColumnOpt,
   },
   {
@@ -269,7 +269,7 @@ export default function ScoreTable({
     enableStickyHeader: false,
     enableFilters: true,
     enableGlobalFilter: true,
-    enableColumnFilters: true,
+    enableColumnFilters: false,
     enableColumnActions: false,
     enablePagination: true,
     enableRowVirtualization: true,

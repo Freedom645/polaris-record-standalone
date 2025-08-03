@@ -2,7 +2,7 @@ import ContainerContent from "@/components/styled/ContainerContent";
 import { RouteDefine } from "@/consts/Route";
 import { indexedDB } from "@/db/AppDatabase";
 import { useScoreTableSettings } from "@/hooks/useScoreTableSettings";
-import type { ChartData } from "@/models/Table";
+import type { ChartData } from "@/models/Music";
 import { deserializeRow } from "@/modules/ChartDataConverter";
 import { Alert, CircularProgress } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
