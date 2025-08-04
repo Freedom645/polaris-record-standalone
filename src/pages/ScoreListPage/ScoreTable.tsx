@@ -276,9 +276,11 @@ const initialDefaultState: Partial<MRT_TableState<TableRow>> = {
 type ScoreTableProps = {
   data: TableRow[];
   isSaveFilter: boolean;
+  displayNoPlay: boolean;
   columnFilters: MRT_ColumnFiltersState;
   columnVisibility: MRT_VisibilityState;
   setIsSaveFilter: OnChangeFn<boolean>;
+  setDisplayNoPlay: OnChangeFn<boolean>;
   onColumnFiltersChange: OnChangeFn<MRT_ColumnFiltersState>;
   onColumnVisibilityChange: OnChangeFn<MRT_VisibilityState>;
 };
@@ -286,15 +288,18 @@ type ScoreTableProps = {
 export default function ScoreTable({
   data,
   isSaveFilter,
+  displayNoPlay,
   columnFilters,
   columnVisibility,
   setIsSaveFilter,
+  setDisplayNoPlay,
   onColumnFiltersChange,
   onColumnVisibilityChange,
 }: ScoreTableProps) {
   const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
   const [menu, setMenu] = useState<"hide" | "filter" | "none">("none");
+  const [displayData, setDisplayData] = useState(data);
 
   useEffect(() => {
     try {
@@ -304,9 +309,19 @@ export default function ScoreTable({
     }
   }, [sorting]);
 
+  useEffect(() => {
+    if (displayNoPlay) {
+      setDisplayData(data);
+    } else {
+      setDisplayData(
+        data.filter((row) => row.clearStatus !== ClearStatus.NO_PLAY)
+      );
+    }
+  }, [data, displayNoPlay]);
+
   const table = useMaterialReactTable({
     columns: Columns,
-    data,
+    data: displayData,
     initialState: { ...initialDefaultState, columnFilters, columnVisibility },
     muiPaginationProps: {
       rowsPerPageOptions: [10, 30, 50, 100, 300, 1000],
@@ -409,6 +424,15 @@ export default function ScoreTable({
                 />
               }
               label={<Typography>条件を記憶する</Typography>}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={displayNoPlay}
+                  onChange={(_, checked) => setDisplayNoPlay(checked)}
+                />
+              }
+              label={<Typography>未プレー表示</Typography>}
             />
           </Stack>
           <Grid container>

@@ -11,6 +11,8 @@ export function useScoreTableSettings() {
   ] = useUserSettingState("score-table-filter", []);
   const [isLoadedSaveFilter, isSaveFilter, setIsSaveFilter] =
     useUserSettingState("score-table-filter-is-save", false);
+  const [isLoadedDisplayNoPlay, displayNoPlay, setDisplayNoPlay] =
+    useUserSettingState("score-table-display-no-play", true);
   const [isLoadedColumnVisibility, columnVisibility, setColumnVisibility] =
     useUserSettingState("score-table-visibility", {});
 
@@ -21,11 +23,17 @@ export function useScoreTableSettings() {
       isLoadedColumnFilters,
       isLoadedSaveFilter,
       isLoadedColumnVisibility,
+      isLoadedDisplayNoPlay,
     ] as const;
     if (targets.every((e) => e)) {
       setIsSettingLoaded(true);
     }
-  }, [isLoadedColumnFilters, isLoadedSaveFilter, isLoadedColumnVisibility]);
+  }, [
+    isLoadedColumnFilters,
+    isLoadedSaveFilter,
+    isLoadedColumnVisibility,
+    isLoadedDisplayNoPlay,
+  ]);
 
   useEffect(() => {
     if (!isSettingLoaded) {
@@ -49,9 +57,11 @@ export function useScoreTableSettings() {
   return {
     isSettingLoaded,
     isSaveFilter,
+    displayNoPlay,
     columnFilters,
     columnVisibility,
     setIsSaveFilter,
+    setDisplayNoPlay,
     setColumnFilters,
     setColumnVisibility,
   };

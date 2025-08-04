@@ -1,5 +1,6 @@
 export interface UserSettingMap {
   "score-table-filter-is-save": boolean;
+  "score-table-display-no-play": boolean;
   "score-table-filter": Array<{ id: string; value: unknown }>;
   "score-table-visibility": Record<string, boolean>;
 }

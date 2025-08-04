@@ -21,9 +21,11 @@ export default function ScoreListPage() {
   const {
     isSettingLoaded,
     isSaveFilter,
+    displayNoPlay,
     columnFilters,
     columnVisibility,
     setIsSaveFilter,
+    setDisplayNoPlay,
     setColumnFilters,
     setColumnVisibility,
   } = useScoreTableSettings();
@@ -81,9 +83,11 @@ export default function ScoreListPage() {
           <ScoreTable
             data={data}
             isSaveFilter={isSaveFilter}
+            displayNoPlay={displayNoPlay}
             columnFilters={columnFilters}
             columnVisibility={columnVisibility}
             setIsSaveFilter={setIsSaveFilter}
+            setDisplayNoPlay={setDisplayNoPlay}
             onColumnFiltersChange={setColumnFilters}
             onColumnVisibilityChange={setColumnVisibility}
           />
