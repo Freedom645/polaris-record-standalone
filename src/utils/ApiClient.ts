@@ -1,5 +1,5 @@
 import type { PolarisChordMusic } from "@/models/api/Eamu/Music";
-import { deserializeJsonData } from "@/modules/MusicConverter";
+import { deserializeJsonData } from "@/modules/api/MusicConverter";
 import Axios from "axios";
 import { useCallback, useMemo } from "react";
 

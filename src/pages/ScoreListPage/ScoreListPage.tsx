@@ -2,8 +2,10 @@ import ContainerContent from "@/components/styled/ContainerContent";
 import { RouteDefine } from "@/consts/Route";
 import { indexedDB } from "@/db/AppDatabase";
 import { useScoreTableSettings } from "@/hooks/useScoreTableSettings";
-import type { ChartData } from "@/models/Music";
-import { deserializeRow } from "@/modules/ChartDataConverter";
+import { MusicData } from "@/models/Music";
+import type { TableRow } from "@/models/view/MusicList";
+import { deserializeRow } from "@/modules/db/ChartDataConverter";
+import { convertToTableRow } from "@/modules/view/MusicListConverter";
 import { useApi } from "@/utils/ApiClient";
 import { Alert, CircularProgress } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
@@ -11,7 +13,7 @@ import { Link } from "react-router-dom";
 import ScoreTable from "./ScoreTable";
 
 export default function ScoreListPage() {
-  const [data, setData] = useState<ChartData[]>([]);
+  const [data, setData] = useState<TableRow[]>([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const { getMusics } = useApi();
 
@@ -31,12 +33,21 @@ export default function ScoreListPage() {
         getMusics(),
         indexedDB.scoreData
           .toArray()
-          .then((records) => records.map(deserializeRow)),
+          .then((records) => deserializeRow(records)),
       ] as const;
 
-      const [, chartData] = await Promise.all(promiseTasks);
+      const [masterData, dbMusicData] = await Promise.all(promiseTasks);
+      const tableRow = MusicData.mergeList(masterData, dbMusicData)
+        .flatMap((music) => convertToTableRow(music))
+        .sort((a, b) => {
+          const nameComp = a.music.name.localeCompare(b.music.name);
+          if (nameComp !== 0) {
+            return nameComp;
+          }
+          return a.difficultyType - b.difficultyType;
+        });
 
-      setData(chartData);
+      setData(tableRow);
       setIsDataLoaded(true);
     };
 

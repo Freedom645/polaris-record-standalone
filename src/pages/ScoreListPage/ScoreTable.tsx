@@ -1,6 +1,6 @@
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
-import { ChartData } from "@/models/Music";
+import type { TableRow } from "@/models/view/MusicList";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
@@ -67,14 +67,22 @@ const LevelOptions: DropdownOption[] = Array.from(Array(14)).map((_, i) => ({
   value: i + 1,
 }));
 
-const RateColumnOpt = {
-  Cell: ({ cell }: { cell: MRT_Cell<ChartData, unknown> }) =>
+const RateColumnOpt = (
+  key: "fcCount" | "apCount" | "clearCount" | "achievementRate"
+): Partial<MRT_ColumnDef<TableRow>> => ({
+  Cell: ({ cell }: { cell: MRT_Cell<TableRow, unknown> }) =>
     cell.getValue<number>().toFixed(2) + "%",
   filterVariant: "range",
   filterFn: "betweenInclusive",
   size: 80,
   enableGlobalFilter: false,
-} as const;
+  accessorFn: (row) => {
+    if (key === "achievementRate") {
+      return row.achievementRate;
+    }
+    return row.playCount > 0 ? (row[key] / row.playCount) * 100 : 0;
+  },
+});
 
 const CountColumnOpt = {
   filterVariant: "range",
@@ -82,7 +90,7 @@ const CountColumnOpt = {
   enableGlobalFilter: false,
 } as const;
 
-const Columns: MRT_ColumnDef<ChartData>[] = [
+const Columns: MRT_ColumnDef<TableRow>[] = [
   {
     header: "ジャケット",
     accessorKey: "music.musicId",
@@ -145,9 +153,9 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
     enableGlobalFilter: false,
   },
   {
-    header: "AcRate",
+    header: "Achv%",
     accessorKey: "achievementRate",
-    ...RateColumnOpt,
+    ...RateColumnOpt("achievementRate"),
   },
   {
     header: "LIKES",
@@ -180,8 +188,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "クリア率",
     id: "clearRate",
-    accessorFn: (row) => row.clearRate * 100,
-    ...RateColumnOpt,
+    ...RateColumnOpt("clearCount"),
   },
   {
     header: "FC回数",
@@ -191,8 +198,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "FC率",
     id: "fcRate",
-    accessorFn: (row) => row.fcRate * 100,
-    ...RateColumnOpt,
+    ...RateColumnOpt("fcCount"),
   },
   {
     header: "AP回数",
@@ -202,8 +208,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "AP率",
     id: "apRate",
-    accessorFn: (row) => row.apRate * 100,
-    ...RateColumnOpt,
+    ...RateColumnOpt("apCount"),
   },
   {
     header: "プレイ回数",
@@ -220,7 +225,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   },
 ] as const;
 
-const initialDefaultState: Partial<MRT_TableState<ChartData>> = {
+const initialDefaultState: Partial<MRT_TableState<TableRow>> = {
   pagination: { pageIndex: 0, pageSize: 100 },
   density: "compact",
   showColumnFilters: false,
@@ -228,7 +233,7 @@ const initialDefaultState: Partial<MRT_TableState<ChartData>> = {
 } as const;
 
 type ScoreTableProps = {
-  data: ChartData[];
+  data: TableRow[];
   isSaveFilter: boolean;
   columnFilters: MRT_ColumnFiltersState;
   columnVisibility: MRT_VisibilityState;

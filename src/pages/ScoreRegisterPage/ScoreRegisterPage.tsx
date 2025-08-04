@@ -1,10 +1,11 @@
 import ContainerContent from "@/components/styled/ContainerContent";
 import { RouteDefine } from "@/consts/Route";
 import { indexedDB } from "@/db/AppDatabase";
+import type { PolarisChordChartData } from "@/models/api/Eamu/Chart";
 import {
   deserializeJsonData,
   serializeRow,
-} from "@/modules/ChartDataConverter";
+} from "@/modules/db/ChartDataConverter";
 import {
   Box,
   Button,
@@ -42,11 +43,11 @@ export default function ScoreRegisterPage() {
   const handleRegister = async () => {
     try {
       setInputError(false);
-      const parsed = JSON.parse(jsonText);
+      const parsed: PolarisChordChartData = JSON.parse(jsonText);
 
       await Promise.all(
         deserializeJsonData(parsed)
-          .map((charData) => serializeRow(charData))
+          .flatMap((charData) => serializeRow(charData))
           .map(async (row) => await indexedDB.scoreData.put(row))
       );
 
