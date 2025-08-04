@@ -1,3 +1,4 @@
+import { ClearStatusBadge } from "@/components/parts/ClearStatusBadge";
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
 import type { TableRow } from "@/models/view/MusicList";
@@ -24,6 +25,7 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import type { OnChangeFn } from "@tanstack/react-table";
@@ -118,20 +120,42 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
     header: "曲名",
     accessorKey: "music.name",
     enableHiding: false,
-    size: 200,
+    size: 250,
+    Cell: ({ cell, renderedCellValue }) => (
+      <Tooltip title={cell.getValue<string>()}>
+        <span>{renderedCellValue}</span>
+      </Tooltip>
+    ),
   },
   {
     header: "作曲者",
     accessorKey: "music.composer",
+    Cell: ({ cell, renderedCellValue }) => (
+      <Tooltip title={cell.getValue<string>()}>
+        <span>{renderedCellValue}</span>
+      </Tooltip>
+    ),
   },
   {
     header: "ライセンス",
     accessorKey: "music.license",
+    size: 250,
+    Cell: ({ cell, renderedCellValue }) => (
+      <Tooltip title={cell.getValue<string>()}>
+        <Typography fontSize={12}>{renderedCellValue}</Typography>
+      </Tooltip>
+    ),
   },
   {
     header: "ジャンル",
     accessorKey: "music.genre",
-    Cell: ({ cell }) => getGenreLabels(cell.getValue<Genre>()).join(","),
+    Cell: ({ cell }) => (
+      <Tooltip title={getGenreLabels(cell.getValue<Genre>()).join("/")}>
+        <Typography fontSize={12}>
+          {getGenreLabels(cell.getValue<Genre>()).join("/")}
+        </Typography>
+      </Tooltip>
+    ),
     filterVariant: "multi-select",
     filterFn: (row, id, filterValue: Genre[]) =>
       filterValue.every((v) => (row.getValue<Genre>(id) & v) !== 0),
@@ -183,11 +207,13 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
     header: "ランプ",
     id: "clearStatus",
     accessorFn: (row) => row.clearStatus,
-    Cell: ({ cell }) => getClearStatusLabel(cell.getValue<ClearStatus>()),
+    Cell: ({ cell }) => (
+      <ClearStatusBadge type={cell.getValue<ClearStatus>()} />
+    ),
     filterVariant: "multi-select",
     filterSelectOptions: ClearStatusOptions,
     filterFn: MultiSelectNumberFilterFn,
-    size: 140,
+    size: 120,
     enableGlobalFilter: false,
   },
   {

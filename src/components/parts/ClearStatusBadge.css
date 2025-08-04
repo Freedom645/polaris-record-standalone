@@ -1,0 +1,40 @@
+.clear-status-badge {
+  width: 100px;
+  text-align: center;
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px;
+  border-style: solid;
+  border-color: var(--outline-color);
+  font-weight: bold;
+  font-size: 0.8rem;
+  color: white;
+  text-shadow: -1px -1px 0 var(--outline-color), 1px -1px 0 var(--outline-color),
+    -1px 1px 0 var(--outline-color), 1px 1px 0 var(--outline-color);
+}
+
+/* 個別スタイル */
+.clear-status-badge.all-perfect {
+  background-color: #ffd85c;
+  --outline-color: #e78816;
+}
+
+.clear-status-badge.full-combo {
+  background-color: #eda2ff;
+  --outline-color: #c565eb;
+}
+
+.clear-status-badge.success {
+  background-color: #73d9f9;
+  --outline-color: #21add3;
+}
+
+.clear-status-badge.good-try {
+  background-color: #c1ecc2;
+  --outline-color: #07ea0a;
+}
+
+.clear-status-badge.no-play {
+  background-color: #d5d5d5;
+  --outline-color: #979797;
+}
