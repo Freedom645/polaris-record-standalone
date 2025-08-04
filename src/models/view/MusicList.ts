@@ -22,5 +22,4 @@ export interface TableRow {
   readonly playCount: number;
   readonly updateAt: Date;
   readonly nicePlayRank: number;
-  readonly isPlayed: boolean;
 }

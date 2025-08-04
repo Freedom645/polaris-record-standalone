@@ -15,6 +15,7 @@ import ScoreTable from "./ScoreTable";
 export default function ScoreListPage() {
   const [data, setData] = useState<TableRow[]>([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const [displayAlert, setDisplayAlert] = useState(false);
   const { getMusics } = useApi();
 
   const {
@@ -37,15 +38,16 @@ export default function ScoreListPage() {
       ] as const;
 
       const [masterData, dbMusicData] = await Promise.all(promiseTasks);
+      setDisplayAlert(dbMusicData.length === 0);
       const tableRow = MusicData.mergeList(masterData, dbMusicData)
         .flatMap((music) => convertToTableRow(music))
-        .sort((a, b) => {
-          const nameComp = a.music.name.localeCompare(b.music.name);
-          if (nameComp !== 0) {
-            return nameComp;
-          }
-          return a.difficultyType - b.difficultyType;
-        });
+        .sort(
+          (a, b) =>
+            [
+              a.music.name.localeCompare(b.music.name),
+              a.difficultyType - b.difficultyType,
+            ].find((e) => e !== 0) ?? 0
+        );
 
       setData(tableRow);
       setIsDataLoaded(true);
@@ -66,7 +68,7 @@ export default function ScoreListPage() {
         <CircularProgress />
       ) : (
         <Fragment>
-          {isDataLoaded && data.length === 0 && (
+          {isDataLoaded && displayAlert && (
             <Alert color="warning" sx={{ marginBottom: 1 }}>
               利用するには
               <Link to={RouteDefine.ScoreRegisterPage.path}>

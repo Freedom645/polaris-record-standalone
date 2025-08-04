@@ -9,6 +9,7 @@ export type ChartDifficultyType =
   (typeof ChartDifficultyType)[keyof typeof ChartDifficultyType];
 
 export const ClearStatus = {
+  NO_PLAY: 0,
   GOOD_TRY: 1,
   SUCCESS: 2,
   FULL_COMBO: 3,

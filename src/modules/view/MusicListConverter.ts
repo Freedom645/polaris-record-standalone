@@ -12,7 +12,6 @@ export function convertToTableRow(musicData: MusicData): TableRow[] {
       },
       ...chart,
       ...score,
-      isPlayed: score.updateAt.getTime() === 0,
     };
     return row;
   });

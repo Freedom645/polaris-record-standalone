@@ -4,6 +4,7 @@ import type { TableRow } from "@/models/view/MusicList";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
+  getGenreLabel,
   getGenreLabels,
 } from "@/utils/LabelUtil";
 import VisibilityOff from "@mui/icons-material/Deselect";
@@ -38,6 +39,7 @@ import {
   type MRT_Cell,
   type MRT_ColumnDef,
   type MRT_ColumnFiltersState,
+  type MRT_FilterFn,
   type MRT_RowVirtualizer,
   type MRT_SortingState,
   type MRT_TableState,
@@ -47,7 +49,8 @@ import { MRT_Localization_JA } from "material-react-table/locales/ja";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 const GenreOptions: DropdownOption[] = Object.values(Genre).map((e) => ({
-  value: getGenreLabels(e),
+  value: e,
+  label: getGenreLabel(e),
 }));
 
 const DifficultyTypeOptions: DropdownOption[] = Object.values(
@@ -59,7 +62,8 @@ const DifficultyTypeOptions: DropdownOption[] = Object.values(
 
 const ClearStatusOptions: DropdownOption[] = Object.values(ClearStatus).map(
   (e) => ({
-    value: getClearStatusLabel(e),
+    value: e,
+    label: getClearStatusLabel(e),
   })
 );
 
@@ -83,6 +87,12 @@ const RateColumnOpt = (
     return row.playCount > 0 ? (row[key] / row.playCount) * 100 : 0;
   },
 });
+
+const MultiSelectNumberFilterFn: MRT_FilterFn<TableRow> = (
+  row,
+  id,
+  filterValue
+) => filterValue.length === 0 || filterValue.includes(row.getValue(id));
 
 const CountColumnOpt = {
   filterVariant: "range",
@@ -120,9 +130,11 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
   },
   {
     header: "ジャンル",
-    id: "music.genre",
-    accessorFn: (row) => getGenreLabels(row.music.genre).join(","),
+    accessorKey: "music.genre",
+    Cell: ({ cell }) => getGenreLabels(cell.getValue<Genre>()).join(","),
     filterVariant: "multi-select",
+    filterFn: (row, id, filterValue: Genre[]) =>
+      filterValue.every((v) => (row.getValue<Genre>(id) & v) !== 0),
     filterSelectOptions: GenreOptions,
     enableGlobalFilter: false,
   },
@@ -131,9 +143,7 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
     accessorKey: "level",
     filterVariant: "multi-select",
     filterSelectOptions: LevelOptions,
-    filterFn: (row, id, filterValue: number[]) =>
-      filterValue.length === 0 ||
-      filterValue.includes(row.getValue<number>(id)),
+    filterFn: MultiSelectNumberFilterFn,
     size: 40,
     enableGlobalFilter: false,
   },
@@ -146,9 +156,7 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
     ),
     filterVariant: "multi-select",
     filterSelectOptions: DifficultyTypeOptions,
-    filterFn: (row, id, filterValue: ChartDifficultyType[]) =>
-      filterValue.length === 0 ||
-      filterValue.includes(row.getValue<ChartDifficultyType>(id)),
+    filterFn: MultiSelectNumberFilterFn,
     size: 80,
     enableGlobalFilter: false,
   },
@@ -174,9 +182,11 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
   {
     header: "ランプ",
     id: "clearStatus",
-    accessorFn: (row) => getClearStatusLabel(row.clearStatus),
+    accessorFn: (row) => row.clearStatus,
+    Cell: ({ cell }) => getClearStatusLabel(cell.getValue<ClearStatus>()),
     filterVariant: "multi-select",
     filterSelectOptions: ClearStatusOptions,
+    filterFn: MultiSelectNumberFilterFn,
     size: 140,
     enableGlobalFilter: false,
   },
@@ -218,8 +228,13 @@ const Columns: MRT_ColumnDef<TableRow>[] = [
   {
     header: "更新日時",
     accessorKey: "updateAt",
-    Cell: ({ cell }) =>
-      formatDate(cell.getValue<Date>(), "yyyy/MM/dd HH:mm:ss"),
+    Cell: ({ cell }) => {
+      const updateAt = cell.getValue<Date>();
+      if (updateAt.getTime() === 0) {
+        return "未プレー";
+      }
+      return formatDate(updateAt, "yyyy/MM/dd HH:mm:ss");
+    },
     filterVariant: "datetime-range",
     enableGlobalFilter: false,
   },

@@ -152,7 +152,7 @@ export class ScoreData {
       comboRank: 0,
       likes: 0,
       likesRank: 0,
-      clearStatus: ClearStatus.GOOD_TRY,
+      clearStatus: ClearStatus.NO_PLAY,
       clearCount: 0,
       fcCount: 0,
       apCount: 0,

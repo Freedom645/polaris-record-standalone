@@ -8,6 +8,7 @@ export const ChartDifficultyLabelMap = {
 } as const;
 
 export const ClearStatusLabelMap = {
+  [ClearStatus.NO_PLAY]: "No Play",
   [ClearStatus.GOOD_TRY]: "Good Try",
   [ClearStatus.SUCCESS]: "Success",
   [ClearStatus.FULL_COMBO]: "Full Combo",
