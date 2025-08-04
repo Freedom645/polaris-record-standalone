@@ -1,4 +1,4 @@
-import type { PolarisChordResponse } from "@/models/api/EamuData";
+import type { PolarisChordChartData } from "@/models/api/Eamu/Chart";
 import type { ScoreDataRow } from "@/models/db/ScoreData";
 import { ChartData, MusicData } from "@/models/Music";
 import { normalizeArray } from "@/utils/ArrayUtil";
@@ -55,7 +55,7 @@ export function deserializeRow(data: ScoreDataRow): ChartData {
   );
 }
 
-export function deserializeJsonData(data: PolarisChordResponse): ChartData[] {
+export function deserializeJsonData(data: PolarisChordChartData): ChartData[] {
   const list = data.data.score_data.usr_music_highscore.music;
 
   return list.flatMap((music) => {

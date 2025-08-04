@@ -4,6 +4,7 @@ import { indexedDB } from "@/db/AppDatabase";
 import { useScoreTableSettings } from "@/hooks/useScoreTableSettings";
 import type { ChartData } from "@/models/Music";
 import { deserializeRow } from "@/modules/ChartDataConverter";
+import { useApi } from "@/utils/ApiClient";
 import { Alert, CircularProgress } from "@mui/material";
 import { Fragment, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -12,6 +13,7 @@ import ScoreTable from "./ScoreTable";
 export default function ScoreListPage() {
   const [data, setData] = useState<ChartData[]>([]);
   const [isDataLoaded, setIsDataLoaded] = useState(false);
+  const { getMusics } = useApi();
 
   const {
     isSettingLoaded,
@@ -24,11 +26,22 @@ export default function ScoreListPage() {
   } = useScoreTableSettings();
 
   useEffect(() => {
-    indexedDB.scoreData.toArray().then((records) => {
-      setData(records.map(deserializeRow));
+    const init = async () => {
+      const promiseTasks = [
+        getMusics(),
+        indexedDB.scoreData
+          .toArray()
+          .then((records) => records.map(deserializeRow)),
+      ] as const;
+
+      const [, chartData] = await Promise.all(promiseTasks);
+
+      setData(chartData);
       setIsDataLoaded(true);
-    });
-  }, []);
+    };
+
+    init();
+  }, [getMusics]);
 
   return (
     <ContainerContent
