@@ -346,7 +346,7 @@ export default function ScoreTable({
     },
     localization: MRT_Localization_JA,
     rowVirtualizerInstanceRef,
-    rowVirtualizerOptions: { overscan: 10 },
+    rowVirtualizerOptions: { overscan: 1 },
     columnVirtualizerOptions: { overscan: 5 },
   });
 
@@ -402,39 +402,42 @@ export default function ScoreTable({
       </Grid>
       <Collapse in={menu === "filter"}>
         <Paper style={{ marginBottom: "0.5rem", padding: 10 }}>
-          <Stack
-            direction="row"
-            justifyContent="start"
-            paddingBottom="10px"
-            gap={5}
-          >
-            <Button
-              variant="outlined"
-              color="warning"
-              startIcon={<RotateLeft />}
-              onClick={() => onColumnFiltersChange([])}
+          <Grid paddingBottom="10px" container gap={2}>
+            <Grid
+              size={{ xs: 12, sm: "auto" }}
+              display="flex"
+              justifyContent="start"
             >
-              リセット
-            </Button>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isSaveFilter}
-                  onChange={(_, checked) => setIsSaveFilter(checked)}
-                />
-              }
-              label={<Typography>条件を記憶する</Typography>}
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={displayNoPlay}
-                  onChange={(_, checked) => setDisplayNoPlay(checked)}
-                />
-              }
-              label={<Typography>未プレー表示</Typography>}
-            />
-          </Stack>
+              <Button
+                variant="outlined"
+                color="warning"
+                startIcon={<RotateLeft />}
+                onClick={() => onColumnFiltersChange([])}
+              >
+                リセット
+              </Button>
+            </Grid>
+            <Grid size={{ xs: "auto" }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isSaveFilter}
+                    onChange={(_, checked) => setIsSaveFilter(checked)}
+                  />
+                }
+                label={<Typography>条件を記憶する</Typography>}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={displayNoPlay}
+                    onChange={(_, checked) => setDisplayNoPlay(checked)}
+                  />
+                }
+                label={<Typography>未プレー表示</Typography>}
+              />
+            </Grid>
+          </Grid>
           <Grid container>
             {table
               .getLeafHeaders()

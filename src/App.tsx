@@ -62,7 +62,7 @@ function App() {
             <MenuIcon fontSize="large" />
           </IconButton>
           <Typography
-            variant="h5"
+            variant="h6"
             noWrap
             onClick={() => navigate(RouteDefine.TopPage.path)}
             sx={{
