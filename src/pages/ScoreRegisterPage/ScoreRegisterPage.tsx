@@ -67,13 +67,10 @@ export default function ScoreRegisterPage() {
 
   return (
     <ContainerContent
-      maxWidth="md"
-      sx={{
-        paddingLeft: { xs: 0, lg: 2 },
-        paddingRight: { xs: 0, lg: 2 },
-      }}
+      maxWidth={"md"}
+      sx={{ paddingLeft: { xs: 0, md: 2 }, paddingRight: { xs: 0, md: 2 } }}
     >
-      <Paper sx={{ textAlign: "start", p: 5 }}>
+      <Paper sx={{ textAlign: "start", p: { xs: 3, md: 5 } }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           スコア登録
         </Typography>

@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
+import { ApplicationLogo } from "./components/parts/ApplicationLogo";
 import { RouteDefine } from "./consts/Route";
 
 function App() {
@@ -34,22 +35,22 @@ function App() {
     {
       ...RouteDefine.TopPage,
       element: <TopPage />,
-      icon: <HomeIcon sx={{ color: "#ff4ca3" }} />,
+      icon: <HomeIcon sx={{ color: "#00ABFF" }} />,
     },
     {
       ...RouteDefine.ScoreRegisterPage,
       element: <ScoreRegisterPage />,
-      icon: <AddCircleIcon sx={{ color: "#ff4ca3" }} />,
+      icon: <AddCircleIcon sx={{ color: "#00ABFF" }} />,
     },
     {
       ...RouteDefine.ScoreListPage,
       element: <ScoreListPage />,
-      icon: <ListAltIcon sx={{ color: "#ff4ca3" }} />,
+      icon: <ListAltIcon sx={{ color: "#00ABFF" }} />,
     },
     {
       ...RouteDefine.GuidePage,
       element: <GuidePage />,
-      icon: <HelpOutlineIcon sx={{ color: "#ff4ca3" }} />,
+      icon: <HelpOutlineIcon sx={{ color: "#00ABFF" }} />,
     },
   ] as const;
 
@@ -64,9 +65,11 @@ function App() {
             variant="h5"
             noWrap
             onClick={() => navigate(RouteDefine.TopPage.path)}
-            sx={{ cursor: "pointer" }}
+            sx={{
+              cursor: "pointer",
+            }}
           >
-            Polaris Record <small>{import.meta.env.VITE_VERSION}</small>
+            <ApplicationLogo version={import.meta.env.VITE_VERSION} />
           </Typography>
         </Toolbar>
       </AppBar>
@@ -110,7 +113,7 @@ function App() {
                   primary={item.name}
                   primaryTypographyProps={{
                     fontWeight: "bold",
-                    color: "#ff4ca3",
+                    color: "#00ABFF",
                   }}
                 />
               </ListItemButton>
