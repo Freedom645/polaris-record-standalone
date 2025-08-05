@@ -19,6 +19,10 @@ export function getClearStatusLabel(
   return ClearStatusLabelMap?.[status] ?? defaultValue;
 }
 
+export function getGenreLabel(value: Genre, defaultValue = "UNKNOWN"): string {
+  return GenreLabelMap?.[value] ?? defaultValue;
+}
+
 export function getGenreLabels(value: number): string[] {
   return (Object.values(Genre) as number[])
     .filter((flag) => (value & flag) !== 0)

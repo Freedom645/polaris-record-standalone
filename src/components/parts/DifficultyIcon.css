@@ -1,24 +1,25 @@
 .badge {
-  width: 60px;
-  height: 30px;
-  border-radius: 50%;
+  width: 80px;
+  height: 20px;
+  border-radius: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
   position: relative;
   border: 3px solid;
-  background: radial-gradient(circle, #fff 30%, var(--bg-color) 100%);
+  background: radial-gradient(circle, #fff 1%, var(--bg-color) 100%);
   border-color: var(--border-color);
 }
 
 .text {
   font-family: "Arial Black", sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.8rem;
+  font-weight: bold;
   color: var(--text-color);
   text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff,
     1px 1px 0 #fff;
-  letter-spacing: 1px;
+  letter-spacing: 0px;
 }
 
 /* 難易度別スタイル */

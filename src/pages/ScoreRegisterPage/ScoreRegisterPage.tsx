@@ -1,10 +1,11 @@
 import ContainerContent from "@/components/styled/ContainerContent";
 import { RouteDefine } from "@/consts/Route";
 import { indexedDB } from "@/db/AppDatabase";
+import type { PolarisChordChartData } from "@/models/api/Eamu/Chart";
 import {
   deserializeJsonData,
   serializeRow,
-} from "@/modules/ChartDataConverter";
+} from "@/modules/db/ChartDataConverter";
 import {
   Box,
   Button,
@@ -42,11 +43,11 @@ export default function ScoreRegisterPage() {
   const handleRegister = async () => {
     try {
       setInputError(false);
-      const parsed = JSON.parse(jsonText);
+      const parsed: PolarisChordChartData = JSON.parse(jsonText);
 
       await Promise.all(
         deserializeJsonData(parsed)
-          .map((charData) => serializeRow(charData))
+          .flatMap((charData) => serializeRow(charData))
           .map(async (row) => await indexedDB.scoreData.put(row))
       );
 
@@ -66,13 +67,10 @@ export default function ScoreRegisterPage() {
 
   return (
     <ContainerContent
-      maxWidth="md"
-      sx={{
-        paddingLeft: { xs: 0, lg: 2 },
-        paddingRight: { xs: 0, lg: 2 },
-      }}
+      maxWidth={"md"}
+      sx={{ paddingLeft: { xs: 0, md: 2 }, paddingRight: { xs: 0, md: 2 } }}
     >
-      <Paper sx={{ textAlign: "start", p: 5 }}>
+      <Paper sx={{ textAlign: "start", p: { xs: 3, md: 5 } }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           スコア登録
         </Typography>

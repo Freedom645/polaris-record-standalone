@@ -53,8 +53,11 @@ export default function GuidePage() {
   const scriptFiledRef = useRef<HTMLInputElement>(null);
 
   return (
-    <ContainerContent maxWidth={"md"}>
-      <Paper sx={{ textAlign: "start", p: 5 }}>
+    <ContainerContent
+      maxWidth={"md"}
+      sx={{ paddingLeft: { xs: 0, md: 2 }, paddingRight: { xs: 0, md: 2 } }}
+    >
+      <Paper sx={{ textAlign: "start", p: { xs: 3, md: 5 } }}>
         <Typography variant="h4" fontWeight="bold" gutterBottom>
           使い方
         </Typography>

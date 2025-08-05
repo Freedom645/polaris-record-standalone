@@ -1,13 +1,10 @@
-import { ChartDifficultyType, ClearStatus } from "../../consts/Code";
+import { Genre, ChartDifficultyType, ClearStatus } from "@/consts/Code";
+import type { PolarisChordResponse } from "./Common";
 
-export interface PolarisChordResponse {
-  status: number;
-  data: PolarisChordData;
-}
+export type PolarisChordChartData =
+  PolarisChordResponse<PolarisChordResponseDataAsScore>;
 
-export interface PolarisChordData {
-  status: number;
-  fail_code: number;
+export interface PolarisChordResponseDataAsScore {
   score_data: ScoreData;
 }
 
@@ -24,7 +21,7 @@ export interface MusicEntry {
   name: string;
   composer: string;
   license: string;
-  genre: number;
+  genre: Genre;
   chart_list: ChartList;
 }
 

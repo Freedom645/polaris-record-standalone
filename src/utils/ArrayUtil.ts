@@ -1,3 +1,10 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const typedEntries = <T extends Record<string, any>>(
+  object: T
+): [keyof T, T[keyof T]][] => {
+  return Object.entries(object);
+};
+
 export function normalizeArray<T>(value: T | T[]): T[] {
   return Array.isArray(value) ? value : [value];
 }
@@ -45,4 +52,10 @@ export function range(
   }
 
   return generator();
+}
+
+export function toMap<K, V>(list: V[], keyAccessor: (v: V) => K) {
+  const map = new Map<K, V>();
+  list.forEach((e) => map.set(keyAccessor(e), e));
+  return map;
 }

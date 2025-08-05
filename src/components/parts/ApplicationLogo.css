@@ -1,0 +1,18 @@
+.application-logo {
+  font-family: "Dela Gothic One";
+  color: #feffe9;
+  text-shadow: -1px -1px 0 var(--outline-color), 1px -1px 0 var(--outline-color),
+    -1px 1px 0 var(--outline-color), 1px 1px 0 var(--outline-color);
+}
+
+.application-logo.polaris {
+  --outline-color: #00dba6;
+}
+
+.application-logo.record {
+  --outline-color: #00abff;
+}
+.application-version {
+  font-family: "Dela Gothic One";
+  font-size: 1rem;
+}

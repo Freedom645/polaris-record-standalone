@@ -1,9 +1,11 @@
+import { ClearStatusBadge } from "@/components/parts/ClearStatusBadge";
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
 import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
-import { ChartData } from "@/models/Music";
+import type { TableRow } from "@/models/view/MusicList";
 import {
   getClearStatusLabel,
   getDifficultyLabel,
+  getGenreLabel,
   getGenreLabels,
 } from "@/utils/LabelUtil";
 import VisibilityOff from "@mui/icons-material/Deselect";
@@ -23,6 +25,7 @@ import {
   Stack,
   ToggleButton,
   ToggleButtonGroup,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import type { OnChangeFn } from "@tanstack/react-table";
@@ -38,6 +41,7 @@ import {
   type MRT_Cell,
   type MRT_ColumnDef,
   type MRT_ColumnFiltersState,
+  type MRT_FilterFn,
   type MRT_RowVirtualizer,
   type MRT_SortingState,
   type MRT_TableState,
@@ -47,7 +51,8 @@ import { MRT_Localization_JA } from "material-react-table/locales/ja";
 import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 
 const GenreOptions: DropdownOption[] = Object.values(Genre).map((e) => ({
-  value: getGenreLabels(e),
+  value: e,
+  label: getGenreLabel(e),
 }));
 
 const DifficultyTypeOptions: DropdownOption[] = Object.values(
@@ -59,7 +64,8 @@ const DifficultyTypeOptions: DropdownOption[] = Object.values(
 
 const ClearStatusOptions: DropdownOption[] = Object.values(ClearStatus).map(
   (e) => ({
-    value: getClearStatusLabel(e),
+    value: e,
+    label: getClearStatusLabel(e),
   })
 );
 
@@ -67,14 +73,28 @@ const LevelOptions: DropdownOption[] = Array.from(Array(14)).map((_, i) => ({
   value: i + 1,
 }));
 
-const RateColumnOpt = {
-  Cell: ({ cell }: { cell: MRT_Cell<ChartData, unknown> }) =>
+const RateColumnOpt = (
+  key: "fcCount" | "apCount" | "clearCount" | "achievementRate"
+): Partial<MRT_ColumnDef<TableRow>> => ({
+  Cell: ({ cell }: { cell: MRT_Cell<TableRow, unknown> }) =>
     cell.getValue<number>().toFixed(2) + "%",
   filterVariant: "range",
   filterFn: "betweenInclusive",
   size: 80,
   enableGlobalFilter: false,
-} as const;
+  accessorFn: (row) => {
+    if (key === "achievementRate") {
+      return row.achievementRate;
+    }
+    return row.playCount > 0 ? (row[key] / row.playCount) * 100 : 0;
+  },
+});
+
+const MultiSelectNumberFilterFn: MRT_FilterFn<TableRow> = (
+  row,
+  id,
+  filterValue
+) => filterValue.length === 0 || filterValue.includes(row.getValue(id));
 
 const CountColumnOpt = {
   filterVariant: "range",
@@ -82,7 +102,7 @@ const CountColumnOpt = {
   enableGlobalFilter: false,
 } as const;
 
-const Columns: MRT_ColumnDef<ChartData>[] = [
+const Columns: MRT_ColumnDef<TableRow>[] = [
   {
     header: "ジャケット",
     accessorKey: "music.musicId",
@@ -100,21 +120,45 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
     header: "曲名",
     accessorKey: "music.name",
     enableHiding: false,
-    size: 200,
+    size: 250,
+    Cell: ({ cell, renderedCellValue }) => (
+      <Tooltip title={cell.getValue<string>()}>
+        <span>{renderedCellValue}</span>
+      </Tooltip>
+    ),
   },
   {
     header: "作曲者",
     accessorKey: "music.composer",
+    Cell: ({ cell, renderedCellValue }) => (
+      <Tooltip title={cell.getValue<string>()}>
+        <span>{renderedCellValue}</span>
+      </Tooltip>
+    ),
   },
   {
     header: "ライセンス",
     accessorKey: "music.license",
+    size: 250,
+    Cell: ({ cell, renderedCellValue }) => (
+      <Tooltip title={cell.getValue<string>()}>
+        <Typography fontSize={12}>{renderedCellValue}</Typography>
+      </Tooltip>
+    ),
   },
   {
     header: "ジャンル",
-    id: "music.genre",
-    accessorFn: (row) => getGenreLabels(row.music.genre).join(","),
+    accessorKey: "music.genre",
+    Cell: ({ cell }) => (
+      <Tooltip title={getGenreLabels(cell.getValue<Genre>()).join("/")}>
+        <Typography fontSize={12}>
+          {getGenreLabels(cell.getValue<Genre>()).join("/")}
+        </Typography>
+      </Tooltip>
+    ),
     filterVariant: "multi-select",
+    filterFn: (row, id, filterValue: Genre[]) =>
+      filterValue.every((v) => (row.getValue<Genre>(id) & v) !== 0),
     filterSelectOptions: GenreOptions,
     enableGlobalFilter: false,
   },
@@ -123,9 +167,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
     accessorKey: "level",
     filterVariant: "multi-select",
     filterSelectOptions: LevelOptions,
-    filterFn: (row, id, filterValue: number[]) =>
-      filterValue.length === 0 ||
-      filterValue.includes(row.getValue<number>(id)),
+    filterFn: MultiSelectNumberFilterFn,
     size: 40,
     enableGlobalFilter: false,
   },
@@ -138,16 +180,14 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
     ),
     filterVariant: "multi-select",
     filterSelectOptions: DifficultyTypeOptions,
-    filterFn: (row, id, filterValue: ChartDifficultyType[]) =>
-      filterValue.length === 0 ||
-      filterValue.includes(row.getValue<ChartDifficultyType>(id)),
+    filterFn: MultiSelectNumberFilterFn,
     size: 80,
     enableGlobalFilter: false,
   },
   {
-    header: "AcRate",
+    header: "Achv%",
     accessorKey: "achievementRate",
-    ...RateColumnOpt,
+    ...RateColumnOpt("achievementRate"),
   },
   {
     header: "LIKES",
@@ -166,10 +206,14 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "ランプ",
     id: "clearStatus",
-    accessorFn: (row) => getClearStatusLabel(row.clearStatus),
+    accessorFn: (row) => row.clearStatus,
+    Cell: ({ cell }) => (
+      <ClearStatusBadge type={cell.getValue<ClearStatus>()} />
+    ),
     filterVariant: "multi-select",
     filterSelectOptions: ClearStatusOptions,
-    size: 140,
+    filterFn: MultiSelectNumberFilterFn,
+    size: 120,
     enableGlobalFilter: false,
   },
   {
@@ -180,8 +224,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "クリア率",
     id: "clearRate",
-    accessorFn: (row) => row.clearRate * 100,
-    ...RateColumnOpt,
+    ...RateColumnOpt("clearCount"),
   },
   {
     header: "FC回数",
@@ -191,8 +234,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "FC率",
     id: "fcRate",
-    accessorFn: (row) => row.fcRate * 100,
-    ...RateColumnOpt,
+    ...RateColumnOpt("fcCount"),
   },
   {
     header: "AP回数",
@@ -202,8 +244,7 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "AP率",
     id: "apRate",
-    accessorFn: (row) => row.apRate * 100,
-    ...RateColumnOpt,
+    ...RateColumnOpt("apCount"),
   },
   {
     header: "プレイ回数",
@@ -213,14 +254,19 @@ const Columns: MRT_ColumnDef<ChartData>[] = [
   {
     header: "更新日時",
     accessorKey: "updateAt",
-    Cell: ({ cell }) =>
-      formatDate(cell.getValue<Date>(), "yyyy/MM/dd HH:mm:ss"),
+    Cell: ({ cell }) => {
+      const updateAt = cell.getValue<Date>();
+      if (updateAt.getTime() === 0) {
+        return "未プレー";
+      }
+      return formatDate(updateAt, "yyyy/MM/dd HH:mm:ss");
+    },
     filterVariant: "datetime-range",
     enableGlobalFilter: false,
   },
 ] as const;
 
-const initialDefaultState: Partial<MRT_TableState<ChartData>> = {
+const initialDefaultState: Partial<MRT_TableState<TableRow>> = {
   pagination: { pageIndex: 0, pageSize: 100 },
   density: "compact",
   showColumnFilters: false,
@@ -228,11 +274,13 @@ const initialDefaultState: Partial<MRT_TableState<ChartData>> = {
 } as const;
 
 type ScoreTableProps = {
-  data: ChartData[];
+  data: TableRow[];
   isSaveFilter: boolean;
+  displayNoPlay: boolean;
   columnFilters: MRT_ColumnFiltersState;
   columnVisibility: MRT_VisibilityState;
   setIsSaveFilter: OnChangeFn<boolean>;
+  setDisplayNoPlay: OnChangeFn<boolean>;
   onColumnFiltersChange: OnChangeFn<MRT_ColumnFiltersState>;
   onColumnVisibilityChange: OnChangeFn<MRT_VisibilityState>;
 };
@@ -240,15 +288,18 @@ type ScoreTableProps = {
 export default function ScoreTable({
   data,
   isSaveFilter,
+  displayNoPlay,
   columnFilters,
   columnVisibility,
   setIsSaveFilter,
+  setDisplayNoPlay,
   onColumnFiltersChange,
   onColumnVisibilityChange,
 }: ScoreTableProps) {
   const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
   const [sorting, setSorting] = useState<MRT_SortingState>([]);
   const [menu, setMenu] = useState<"hide" | "filter" | "none">("none");
+  const [displayData, setDisplayData] = useState(data);
 
   useEffect(() => {
     try {
@@ -258,9 +309,19 @@ export default function ScoreTable({
     }
   }, [sorting]);
 
+  useEffect(() => {
+    if (displayNoPlay) {
+      setDisplayData(data);
+    } else {
+      setDisplayData(
+        data.filter((row) => row.clearStatus !== ClearStatus.NO_PLAY)
+      );
+    }
+  }, [data, displayNoPlay]);
+
   const table = useMaterialReactTable({
     columns: Columns,
-    data,
+    data: displayData,
     initialState: { ...initialDefaultState, columnFilters, columnVisibility },
     muiPaginationProps: {
       rowsPerPageOptions: [10, 30, 50, 100, 300, 1000],
@@ -285,7 +346,7 @@ export default function ScoreTable({
     },
     localization: MRT_Localization_JA,
     rowVirtualizerInstanceRef,
-    rowVirtualizerOptions: { overscan: 10 },
+    rowVirtualizerOptions: { overscan: 1 },
     columnVirtualizerOptions: { overscan: 5 },
   });
 
@@ -341,30 +402,42 @@ export default function ScoreTable({
       </Grid>
       <Collapse in={menu === "filter"}>
         <Paper style={{ marginBottom: "0.5rem", padding: 10 }}>
-          <Stack
-            direction="row"
-            justifyContent="start"
-            paddingBottom="10px"
-            gap={5}
-          >
-            <Button
-              variant="outlined"
-              color="warning"
-              startIcon={<RotateLeft />}
-              onClick={() => onColumnFiltersChange([])}
+          <Grid paddingBottom="10px" container gap={2}>
+            <Grid
+              size={{ xs: 12, sm: "auto" }}
+              display="flex"
+              justifyContent="start"
             >
-              リセット
-            </Button>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={isSaveFilter}
-                  onChange={(_, checked) => setIsSaveFilter(checked)}
-                />
-              }
-              label={<Typography>条件を記憶する</Typography>}
-            />
-          </Stack>
+              <Button
+                variant="outlined"
+                color="warning"
+                startIcon={<RotateLeft />}
+                onClick={() => onColumnFiltersChange([])}
+              >
+                リセット
+              </Button>
+            </Grid>
+            <Grid size={{ xs: "auto" }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={isSaveFilter}
+                    onChange={(_, checked) => setIsSaveFilter(checked)}
+                  />
+                }
+                label={<Typography>条件を記憶する</Typography>}
+              />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={displayNoPlay}
+                    onChange={(_, checked) => setDisplayNoPlay(checked)}
+                  />
+                }
+                label={<Typography>未プレー表示</Typography>}
+              />
+            </Grid>
+          </Grid>
           <Grid container>
             {table
               .getLeafHeaders()
