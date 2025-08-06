@@ -16,7 +16,7 @@ export default function TopPage() {
     <Container maxWidth="sm" sx={{ textAlign: "center", mt: 1 }}>
       <Box sx={{ height: { xs: "200px", sm: "250px", md: "300px" } }}>
         <img
-          src={`${import.meta.env.BASE_URL}/images/polaris_record_logo.png`}
+          src={new URL(`/images/polaris_record_logo.png`, import.meta.url).href}
           height="100%"
           width="100%"
           style={{ objectFit: "contain" }}
