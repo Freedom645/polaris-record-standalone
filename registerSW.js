@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/polaris-record-standalone/sw.js', { scope: '/polaris-record-standalone/' })})}
