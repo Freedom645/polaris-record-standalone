@@ -1,7 +1,7 @@
 export const RouteDefine = {
   TopPage: {
     name: "トップ",
-    path: "/",
+    path: "/top",
   },
   ScoreRegisterPage: {
     name: "スコア登録",

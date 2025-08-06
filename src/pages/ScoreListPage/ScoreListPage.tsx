@@ -33,7 +33,7 @@ export default function ScoreListPage() {
   useEffect(() => {
     const init = async () => {
       const promiseTasks = [
-        getMusics(),
+        getMusics().catch(() => []),
         indexedDB.scoreData
           .toArray()
           .then((records) => deserializeRow(records)),

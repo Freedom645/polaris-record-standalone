@@ -87,6 +87,7 @@ function App() {
             {MenuItems.map((item) => (
               <Route path={item.path} element={item.element} />
             ))}
+            <Route path="*" element={<TopPage />} />
           </Routes>
         </Container>
       </nav>

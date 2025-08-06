@@ -1,0 +1,1 @@
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/polaris-record-standalone/dev-sw.js?dev-sw', { scope: '/polaris-record-standalone/', type: 'classic' })
