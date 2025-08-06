@@ -9,7 +9,16 @@ export default defineConfig({
     react(),
     tsconfigPaths(),
     VitePWA({
-      devOptions: { enabled: true },
+      devOptions: {
+        enabled: true,
+        navigateFallback: "index.html",
+        suppressWarnings: true,
+        type: "module",
+      },
+      workbox: {
+        globDirectory: "dist",
+        globPatterns: ["**/*.{html,js,css,png,jpg,webp,json}"],
+      },
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "apple-touch-icon.png"],
       injectRegister: "auto",
