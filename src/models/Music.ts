@@ -60,18 +60,57 @@ export class MusicData {
   public merge(other: MusicData): MusicData {
     return MusicData.merge(this, other);
   }
+
+  public includeGenre(value: Genre): boolean {
+    return (value & this.genre) !== value;
+  }
+
+  public filterScoreData(
+    filterOption: {
+      difficultyType?: ChartDifficultyType;
+      level?: number;
+      genre?: Genre;
+    } = {}
+  ): ScoreData[] {
+    if (filterOption.genre != null && !this.includeGenre(filterOption.genre)) {
+      return [];
+    }
+    const chartKeys = [...this.chartList.values()]
+      .filter(
+        (e) =>
+          (filterOption.difficultyType == null ||
+            e.difficultyType === filterOption.difficultyType) &&
+          (filterOption.level == null || e.level === filterOption.level)
+      )
+      .map((e) => e.chartKey);
+
+    return chartKeys.map(
+      (chartKey) =>
+        this.scoreList.get(chartKey.toKey()) ?? ScoreData.empty(chartKey)
+    );
+  }
 }
 
 export class ChartKey {
   public readonly musicId: string;
   public readonly difficultyType: ChartDifficultyType;
   constructor(musicId: string, difficultyType: ChartDifficultyType) {
+    if (typeof difficultyType !== "number") {
+      throw new Error(typeof difficultyType);
+    }
     this.musicId = musicId;
     this.difficultyType = difficultyType;
   }
 
   public toKey(): string {
     return `${this.musicId}-${this.difficultyType}`;
+  }
+
+  public equals(other: ChartKey): boolean {
+    return (
+      this.musicId === other.musicId &&
+      this.difficultyType === other.difficultyType
+    );
   }
 }
 

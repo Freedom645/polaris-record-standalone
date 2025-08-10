@@ -4,6 +4,7 @@ import ScoreListPage from "@/pages/ScoreListPage/ScoreListPage";
 import ScoreRegisterPage from "@/pages/ScoreRegisterPage/ScoreRegisterPage";
 import TopPage from "@/pages/TopPage/TopPage";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
+import AssessmentIcon from "@mui/icons-material/Assessment";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import HomeIcon from "@mui/icons-material/Home";
 import ListAltIcon from "@mui/icons-material/ListAlt";
@@ -25,6 +26,7 @@ import { useState } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { ApplicationLogo } from "./components/parts/ApplicationLogo";
 import { RouteDefine } from "./consts/Route";
+import PlayStatisticsPage from "./pages/PlayStatisticsPage/PlayStatisticsPage";
 
 function App() {
   const navigate = useNavigate();
@@ -35,22 +37,27 @@ function App() {
     {
       ...RouteDefine.TopPage,
       element: <TopPage />,
-      icon: <HomeIcon sx={{ color: "#00ABFF" }} />,
+      icon: <HomeIcon />,
     },
     {
       ...RouteDefine.ScoreRegisterPage,
       element: <ScoreRegisterPage />,
-      icon: <AddCircleIcon sx={{ color: "#00ABFF" }} />,
+      icon: <AddCircleIcon />,
     },
     {
       ...RouteDefine.ScoreListPage,
       element: <ScoreListPage />,
-      icon: <ListAltIcon sx={{ color: "#00ABFF" }} />,
+      icon: <ListAltIcon />,
+    },
+    {
+      ...RouteDefine.PlayStatisticsPage,
+      element: <PlayStatisticsPage />,
+      icon: <AssessmentIcon />,
     },
     {
       ...RouteDefine.GuidePage,
       element: <GuidePage />,
-      icon: <HelpOutlineIcon sx={{ color: "#00ABFF" }} />,
+      icon: <HelpOutlineIcon />,
     },
   ] as const;
 
@@ -109,7 +116,9 @@ function App() {
                 key={item.path}
                 onClick={() => navigate(item.path)}
               >
-                <ListItemIcon>{item.icon}</ListItemIcon>
+                <ListItemIcon sx={{ color: "#00ABFF" }}>
+                  {item.icon}
+                </ListItemIcon>
                 <ListItemText
                   primary={item.name}
                   primaryTypographyProps={{

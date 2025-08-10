@@ -11,6 +11,10 @@ export const RouteDefine = {
     name: "スコア一覧",
     path: "/score/list",
   },
+  PlayStatisticsPage: {
+    name: "プレイ統計",
+    path: "/statistic",
+  },
   GuidePage: {
     name: "使い方",
     path: "/guide",

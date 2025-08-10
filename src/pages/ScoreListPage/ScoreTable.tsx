@@ -1,6 +1,11 @@
 import { ClearStatusBadge } from "@/components/parts/ClearStatusBadge";
 import DifficultyIcon from "@/components/parts/DifficultyIcon";
-import { ChartDifficultyType, ClearStatus, Genre } from "@/consts/Code";
+import {
+  ChartDifficultyType,
+  ClearStatus,
+  Genre,
+  LEVEL_LIST,
+} from "@/consts/Code";
 import type { TableRow } from "@/models/view/MusicList";
 import {
   getClearStatusLabel,
@@ -69,8 +74,8 @@ const ClearStatusOptions: DropdownOption[] = Object.values(ClearStatus).map(
   })
 );
 
-const LevelOptions: DropdownOption[] = Array.from(Array(14)).map((_, i) => ({
-  value: i + 1,
+const LevelOptions: DropdownOption[] = LEVEL_LIST.map((value) => ({
+  value,
 }));
 
 const RateColumnOpt = (

@@ -8,6 +8,9 @@ export const ChartDifficultyType = {
 export type ChartDifficultyType =
   (typeof ChartDifficultyType)[keyof typeof ChartDifficultyType];
 
+export const CHART_DIFFICULTY_LIST: readonly ChartDifficultyType[] =
+  Object.values(ChartDifficultyType).sort();
+
 export const ClearStatus = {
   NO_PLAY: 0,
   GOOD_TRY: 1,
@@ -17,6 +20,16 @@ export const ClearStatus = {
 } as const;
 
 export type ClearStatus = (typeof ClearStatus)[keyof typeof ClearStatus];
+
+export const PLAYED_STATUS_LIST: ReadonlyArray<ClearStatus> = Object.values(
+  ClearStatus
+).filter((e) => e !== ClearStatus.NO_PLAY);
+
+export const SUCCESS_STATUS_LIST: ReadonlyArray<ClearStatus> =
+  PLAYED_STATUS_LIST.filter((e) => e !== ClearStatus.GOOD_TRY);
+
+export const FC_STATUS_LIST: ReadonlyArray<ClearStatus> =
+  PLAYED_STATUS_LIST.filter((e) => e !== ClearStatus.SUCCESS);
 
 export const Genre = {
   VIRTUAL: 1 << 0,
@@ -28,3 +41,7 @@ export const Genre = {
 } as const;
 
 export type Genre = (typeof Genre)[keyof typeof Genre];
+
+export const LEVEL_LIST: readonly number[] = Array.from(Array(14)).map(
+  (_, i) => i + 1
+);

@@ -17,7 +17,7 @@ export function deserializeJsonData(data: PolarisChordMusic): MusicData[] {
         ? []
         : new ChartData({
             musicId: music.music_id,
-            difficultyType: type as ChartDifficultyType,
+            difficultyType: Number(type) as ChartDifficultyType,
             level,
           })
     );
